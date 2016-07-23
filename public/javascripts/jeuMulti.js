@@ -1,13 +1,14 @@
-var socket = io('/ioJeuMulti');
+
 $(document).ready(function(){
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
-// On checke le serveur et on fait le namespace
+var socket = io('/ioJeuMulti');
     
-// On recrée la variable user qui représente le joueur dans le websocket
+// On recrée la variable user récupérée chez jade
     var user = {
         nom: nomUser
     };
+    
     var ownPerso;
     var scoreJoueur = {};
     var partie;
@@ -134,36 +135,32 @@ $(document).ready(function(){
     };
     
     socket.emit('connectionUser', {user: user});
-    
+// Rejoindre partie
     socket.on('listeParties', function(listeParties){
+    // si c'est array, c'est quon arrive pour la première fois
         if(Array.isArray(listeParties)){
             for(var i = 0; listeParties[i]; i++){
                 var partieArejoindre = listeParties[i];
                 creationParamsParties(partieArejoindre);
             };
         } else {
+        // maj les nouvelles parties créées
             partieArejoindre = listeParties.partie;
             creationParamsParties(partieArejoindre);
         };
     });
     
     socket.on('enAttente', function(data){
+    // met a jour la partie à chaque nouveau joueur qui rejoind la partie
         partie = data.partie;
         room = partie.roomName;
-        
-        if(partie.listeJoueurs.length == partie.nbrJoueurs){
-            partie.complet = true;
-            socket.emit('enAttente', {partie: partie});
-        };
     });
-// reçoit les scores des autres joueurs
+
     socket.on('jouer', function(data){
-    // gère les persos
         var listePersos = data.listeJoueurs;
-        var listeAutresPersos = [];
-    // lancement du jeu
+    // au lancement de la partie, on reçoit un array et on créée les joueurs avec
         if(Array.isArray(listePersos)){
-        // on supprime les choix
+        // on supprime les choix et/ou la video
             $('#choixPersonnage').remove();
             $('#videoAttente').remove();
             $('#informationAttente').remove();
@@ -172,30 +169,28 @@ $(document).ready(function(){
             $(terrainDeJeu).attr('id', 'bacASable');
             $('#parametragePartie').append(terrainDeJeu);
             for(var i = 0; listePersos[i]; i++){
-    // MON PERSO
+            // MON PERSO
                 if(user.nom == listePersos[i].nom){
                     ownPerso = listePersos[i];
                     creationJoueurs(ownPerso);
-                // lance la génération des rochers
                     ownPerso.normal();
+                // lance la génération des rochers après un petit délai
                     start = true;
                     setInterval(function(){
-                        /*genererRochers()*/
+                        genererRochers();
                     }, 5000);
                 } else {
-    // AUTRES PERSO
-                    var otherPerso = listePersos[i];
-                    creationJoueurs(otherPerso);
-                    
-                    listeAutresPersos.push(otherPerso);
-                    if(otherPerso.status == 'kayoken'){
-                        energie.animation(otherPerso);
+                // AUTRES PERSO
+                    creationJoueurs(listePersos[i]);
+                    if(listePersos[i].status == 'kayoken'){
+                        energie.animation(listePersos[i]);
                     };
                 };
             };
         } else {
-    // reçoit les infos des autres joueurs
+    // reçoit les infos des autres joueurs et met à jour leurs actions
             var joueur = data.joueur.joueur;
+        // permet de récupérer le nom du sprite pour gérer les positions
             var monSprite = /^..\/images\/jeu2\/sprites\/(\S+)\.png$/.exec(joueur.backgroundImage);
             monSprite = RegExp.$1;
             
@@ -220,14 +215,14 @@ $(document).ready(function(){
     });
     
     socket.on('scoreJoueurs', function(data){
-        var scoreAutreJoueur = data.scoreJoueurs.scoreJoueurs;
+        var scoreAutreJoueur = data.scoreJoueurs;
+    // met à jour les scores des autres joueurs
         $('#scoreJoueur' + scoreAutreJoueur.nom).css({height: scoreAutreJoueur.height});
     });
     
-// SETINTERVAL DANS LE SET TIMEOUT
-    
     var genererRochers = function(){
-        var interval = Math.random()*(8 - 4) + 4;
+    // génère rochers de ownPerso
+        var interval = Math.random()*(10 - 5) + 5;
         var rocher = {
             nom: ownPerso.nom,
             left: ownPerso.leftDiv
@@ -240,7 +235,7 @@ $(document).ready(function(){
         }, 1000 * interval);
         socket.emit('rochers', {rocher: rocher});
     };
-// vérifie position et collision
+// vérifie position et collision de ownPerso
     setInterval(function(){
         if(start){
             if($('#rocher'+ownPerso.nom).length){
@@ -280,24 +275,17 @@ $(document).ready(function(){
     });
     
     socket.on('finJeu', function(data){
-        var listeLoosers = data.listeLoosers;
-        for(var i = 0; listeLoosers[i]; i++){
-            if(ownPerso.nom == listeLoosers[i]){
-                ownPerso.defaite();
-            };
+    // si ownPerso est un looser... bah c'est pas de chance
+        if(ownPerso.nom == data.looser){
+            ownPerso.defaite();
         };
-        if(listeLoosers.length == (partie.nbrJoueurs-1)){
-            var gagnant = $(partie.listeJoueurs).not(listeLoosers).get();
-            socket.emit('gagnant', {gagnant: gagnant});
+    // si le serveur nous envoi un gagnant on stop le jeu
+        if(data.winner){
+            $('#bacASable').remove();
+            var finDuJeu = document.createElement('div');
+            $(finDuJeu).addClass('finDuJeu').html('Et le gagnant est: ' + data.winner);
+            $('#parametragePartie').append(finDuJeu);
         };
-    });
-    
-    socket.on('gagnant', function(data){
-        var gagnant = data.gagnant[0];
-        $('#bacASable').remove();
-        var finDuJeu = document.createElement('div');
-        $(finDuJeu).addClass('finDuJeu').html('Et le gagnant est: ' + gagnant);
-        $('#parametragePartie').append(finDuJeu);
     });
     
     var creationJoueurs = function(unJoueur){
@@ -318,19 +306,19 @@ $(document).ready(function(){
         $(containerScoreJoueur).append(scoreJoueur);
     // affiche l'image du joueur
         var imageJoueur = document.createElement('img');
-        $(imageJoueur).attr({src: unJoueur.backgroundImage, id: 'img' + unJoueur.nom}).css({ position: 'absolute'});
+        $(imageJoueur).attr({src: unJoueur.backgroundImage, id: 'img' + unJoueur.nom}).css({ position: 'absolute', zIndex: 1});
         $(divJoueur).append(imageJoueur);
     // on attache chaque div au jeu
         $('#bacASable').append(divJoueur);
     // on sélectionne le personnage du joueur
         var monSprite = /^..\/images\/jeu2\/sprites\/(\S+)\.png$/.exec(unJoueur.backgroundImage);
         monSprite = RegExp.$1;
-        
-    // on attache les méthodes de jeu de SON PERSO
+    // mouvements de ownPerso
         if(user.nom == nomJoueur){
             ownPerso.status = 'normal';
             ownPerso.leftDiv = unJoueur.left;
             ownPerso.normal = function(){
+            // gère limage et transmet la position
                 $('#img' + nomJoueur).css({top: positionsSprites[monSprite].initiale.top, left: positionsSprites[monSprite].initiale.left});
                 
                 this.top = positionsSprites[monSprite].initiale.top;
@@ -340,67 +328,68 @@ $(document).ready(function(){
                 socket.emit('jouer', {joueur: ownPerso});
             };
             ownPerso.kayoken = function(){
-                
+            // gère limage
                 $('#img' + nomJoueur).css({top: positionsSprites[monSprite].kayoken.top, left: positionsSprites[monSprite].kayoken.left});
-                
             // anime le kayoken et diminue l'énergie
                 energie.animation(ownPerso);
-
+                
                 this.top = positionsSprites[monSprite].kayoken.top;
                 this.left = positionsSprites[monSprite].kayoken.left;
                 this.status = 'kayoken';
-                
+            // diminue le score
                 $('#scoreJoueur' + ownPerso.nom).css({height: '+=3'});
                 scoreJoueur.nom = ownPerso.nom;
-                
-                
                 scoreJoueur.height = $('#scoreJoueur' + ownPerso.nom).css('height');
-                
+            // on transmet le tout
                 socket.emit('scoreJoueurs', {scoreJoueurs: scoreJoueur});
                 socket.emit('jouer', {joueur: ownPerso});
             };
             ownPerso.echec = function(){
+            // si on n'a pas perdu
                 if(ownPerso.status != 'defaite'){
                     $('#img' + ownPerso.nom).css({top: positionsSprites[monSprite].echec.top, left: positionsSprites[monSprite].echec.left});
                 // ici on diminue le height du joueur
                     this.top = positionsSprites[monSprite].echec.top;
                     this.left = positionsSprites[monSprite].echec.left;
                     this.status = 'echec';
-                // remet à l'état initiale
+                // remet à l'état initiale après un petit délai
                     setTimeout(function() {
                         ownPerso.normal();
                     }, 1000);
+                // on transmet
                     socket.emit('jouer', {joueur: ownPerso});
                 };
             };
             ownPerso.defaite = function(){
+            // si on est un looser
                 $('#img' + ownPerso.nom).css({top: positionsSprites[monSprite].defaite.top, left: positionsSprites[monSprite].defaite.left});
 
                 this.top = positionsSprites[monSprite].defaite.top;
                 this.left = positionsSprites[monSprite].defaite.left;
-                
+            // bloque les mouvements du looser et transmet
                 this.status = 'defaite';
                 lancementAnimation = false;
                 socket.emit('jouer', {joueur: ownPerso});
             };
         };
     };
-    
-    var poursuivre;                                             // active-désactive le déplacement
+// variables pour l'animation
+    var poursuivre;
     var lancementAnimation = true;
-    
+
     function kayokenOn() {
         if(lancementAnimation && ownPerso.status != 'defaite'){
-            poursuivre = true;                                  // lance le déplacement
+            poursuivre = true;
             ownPerso.kayoken();
-            lancementAnimation = false;                         // évite répétition animationFrame
+            lancementAnimation = false;
         };
     };
 
     $(window).keydown(function(event) {
-        var codeTouche = event.which || event.keyCode;          // compatibilité
+    // compatibilité
+        var codeTouche = event.which || event.keyCode;
         switch(codeTouche) {
-            case 32:                                            // espace
+            case 32:                                                    // TOUCHE ESPACE
                 if(lancementAnimation && ownPerso.status != 'defaite'){
                     kayokenOn();
                 };
@@ -410,21 +399,24 @@ $(document).ready(function(){
                 event.preventDefault();
                 break;
         };
-        lancementAnimation = true;                           // permet de relancer l'animationFrame
+        lancementAnimation = true;                           // permet de relancer le kayoken
     });
     
     function kayokenOff() {
-        poursuivre = false;                          // stop le déplacement
-        ownPerso.normal();                         // lance le deplacement
+        poursuivre = false;
+    // on remet à l'état normal
+        ownPerso.normal();
     };
     
     $(window).keyup(function(event){
+    // compatibilité
         var codeTouche = event.wich || event.keyCode;
         switch(codeTouche){
-            case 32:
+            case 32:                                        // TOUCHE ESPACE
                 if(ownPerso.status != 'defaite'){
                     kayokenOff();
                 } else {
+                // pour être vraiment sur que le looser joue plus
                     ownPerso.defaite();
                 }
                 event.preventDefault();
@@ -436,24 +428,18 @@ $(document).ready(function(){
     });
     
     var energie = {
-        sprite:
-            {
-                top: '-97px',
-                left: '-196px'
-            },
         animation: function(unPersonnage){
             var monObjet = this;
             var i = 0;
             var framesParSeconde = 3;
-            
+        // on fait un beau kayoken bien propre
             var imageEnergie = document.createElement('img');
             $(imageEnergie).attr({id: 'imageEnergie' + unPersonnage.nom});
-            $(imageEnergie).attr({ src: '../images/jeu2/sprites/energie.png', title: 'Energie', alt: 'Energie'}).css({position: 'absolute'});
+            $(imageEnergie).attr({ src: '../images/jeu2/sprites/energie.png', title: 'Energie', alt: 'Energie'}).css({position: 'absolute', top: '-87px', left: '-179px'});
             $('#divJoueur' + unPersonnage.nom).append(imageEnergie);
-            
+        // on l'affiche et on la retire
             function monAnimation (){
                 setTimeout(function(){
-                    $('#imageEnergie').css({top: monObjet.sprite.top, left: monObjet.sprite.left});
                     if(ownPerso.status == 'kaoyen'){
                         window.requestAnimationFrame(function() {
                             monAnimation(monObjet);
@@ -472,31 +458,22 @@ $(document).ready(function(){
         }
     };
     
-// FONCTIONS UTILES
-    
-    // fonction de base pour créer une partie
+// fonction de base pour CREER une partie
     $('#boutonCreer').click(function(){
         $('#acceuilJeuMulti').remove();
     // première div qui contiendra les choix du users        
-        var choixNbrJoueurs = document.createElement('div');        
-    // on lui attribue un id pour le remove après le choix        
+        var choixNbrJoueurs = document.createElement('div');     
         $(choixNbrJoueurs).attr('id', 'choixNbrJoueurs');
-    // on lui attribut un id pour remove après
-        $(choixNbrJoueurs).addClass('parametragePartie').html('Combien de joueurs???<br>');        
+        $(choixNbrJoueurs).addClass('parametragePartie').html('Combien de joueurs???<br/>').css({fontSize: '2em', color: 'red'});        
         $('#parametragePartie').append(choixNbrJoueurs);
     // création boutons choix du nombre de joueurs
-        for(var j=2; j<5; j++){
-        // on fait chaque bouton
-            var nouvelleDiv = document.createElement('div');            
-        // on lui attache une classe               
-            $(nouvelleDiv).addClass('boutonsChoixNbr').html(j);            
-        // on affiche chaque bouton dans choixNbrJoueurs            
-            $(choixNbrJoueurs).append(nouvelleDiv);            
-        // au click, lorsque le user a choisi            
+        for(var j = 2; j < 5; j++){
+            var nouvelleDiv = document.createElement('div');  
+            $(nouvelleDiv).addClass('boutonsChoixNbr').html(j);
+            $(choixNbrJoueurs).append(nouvelleDiv);
             $(nouvelleDiv).click(function(){
-            // on récupère la valeur
+            // au click, lorsque le user a choisi, on récupère la valeure et on supprime les boutons
                 nbrJoueurs = $(this).html();
-            // on supprime la div contenant les pitits boutons
                 $('#choixNbrJoueurs').remove();
             // on fait apparaitre la div choixPersonnage
                 var choixPersonnage = document.createElement('div');
@@ -515,8 +492,7 @@ $(document).ready(function(){
                     var nouvelleImage = document.createElement('img');
                     $(nouvelleImage).attr({src: '../images/jeu2/choix/tete' + listeSpritesPerso[k] + '.png', title: listeSpritesPerso[k], id: listeSpritesPerso[k]});
                     $(nouveauLi).append(nouvelleImage);
-                    
-                // on récupère le choix de l'utilisateur et on transmet via webSocket
+                // on récupère le choix de l'utilisateur et on transmet
                     $(nouvelleImage).click(function(event){
                         imageJoueur = $(this).attr('id');
                         if(imageJoueur && nbrJoueurs && user){
@@ -531,22 +507,24 @@ $(document).ready(function(){
                             socket.emit('nouvellePartie', {partieCree: partieCree});
                         };
                         $('#choixPersonnage').remove();
+                    // comme je suis un mec sympatique, on fait patienter avec un truc cool
                         var videoAttente = document.createElement('iframe');
                         $(videoAttente).attr({id: 'videoAttente', src: "https://www.youtube.com/embed/o_2Hku874lc?list=PLkonQJrH-v6wo_MnR6BG7oc42OmBqTHhF", frameborder: 0, allowfullscreen: true}).css({width: 560, height: 315});
                         $('#parametragePartie').append(videoAttente);
-                        
+                    // pour pas que l'utilisateur soit perdu...
                         var informationAttente = document.createElement('p');
                         $(informationAttente).attr({id: 'informationAttente'}).css({width: 560, margin: 'auto', color: 'red', fontSize: '2em'}).html('En attendant les autres joueurs, nous vous proposons une petite vidéo simpas!');
                         $('#parametragePartie').append(informationAttente);
-                        
                     });
                 };
+            // mise en forme du "formulaire"
                 monCarroussel();
             });
         };
     });
-    
+// pour REJOINDRE une partie
     var creationParamsParties = function(partieArejoindre){
+    // on génère dynamiquement chaque partie à choisir
         var nouvelleDiv = document.createElement('div');
         $(nouvelleDiv).attr('id', partieArejoindre.roomName);
         $(nouvelleDiv).html('<p>Partie créée par: '+ partieArejoindre.listeJoueurs[0] + '</p>' +
@@ -554,22 +532,22 @@ $(document).ready(function(){
                            '<p>Nombre de joueurs attendus: ' + partieArejoindre.nbrJoueurs + '</p>' +
                            '<p>Nombre de joueurs connectés: ' + partieArejoindre.listeJoueurs.length + '</p>');
         $('#partiesEnAttente').append(nouvelleDiv);
-
+        
         var boutonRejoindre = document.createElement('p');
         $(boutonRejoindre).addClass('btn jaune col-xs-12').html('Rejoindre cette partie!');
         $(nouvelleDiv).append(boutonRejoindre);
-
+        
         $(boutonRejoindre).click(function(){
             $('#acceuilJeuMulti').remove();
         // on choisi son perso
             var choixPersonnage = document.createElement('div');
             $(choixPersonnage).attr('id', 'choixPersonnage');
             $('#parametragePartie').append(choixPersonnage);
-
+            
             var choixPersonnageUl = document.createElement('ul');
             $(choixPersonnageUl).attr('id', 'choixPersonnageUl');
             $('#choixPersonnage').append(choixPersonnageUl);
-
+            
             for(var k = 0; listeSpritesPerso[k]; k++){
                 var nouveauLi = document.createElement('li');
                 $(nouveauLi).attr('id', 'li'+k).addClass('liChoixPerso');
@@ -580,12 +558,14 @@ $(document).ready(function(){
                 $(nouveauLi).append(nouvelleImage);
 
                 $(nouvelleImage).click(function(event){
+                // une fois choisi, on crée le personnage
                     imageJoueur = $(this).attr('id');
                     if(imageJoueur){
                         user.image = imageJoueur;
                         socket.emit('rejoindrePartie', {partieArejoindre: partieArejoindre, joueur: user});
                     };
                     $('#choixPersonnage').remove();
+                // et on fait patienter gentillement
                     var videoAttente = document.createElement('iframe');
                     $(videoAttente).attr({id: 'videoAttente', src: "https://www.youtube.com/embed/o_2Hku874lc?list=PLkonQJrH-v6wo_MnR6BG7oc42OmBqTHhF", frameborder: 0, allowfullscreen: true}).css({width: 560, height: 315});
                     $('#parametragePartie').append(videoAttente);
@@ -595,20 +575,21 @@ $(document).ready(function(){
                     $('#parametragePartie').append(informationAttente);
                 });
             };
+        // et on met en forme
             monCarroussel();
         });
     };
     
     var monCarroussel = function(){
-        var $carrousel = $('#choixPersonnage'),
-            $img = $('#choixPersonnage img'),
-            indexImg = $img.length - 1,
-            l = 0,
-            $currentImg = $img.eq(l);
+        var $carrousel = $('#choixPersonnage');
+        var $img = $('#choixPersonnage img');
+        var indexImg = $img.length - 1;
+        var l = 0;
+        var $currentImg = $img.eq(l);
     // gère l'affichage des images
         $img.css('display', 'none');
         $currentImg.css('display', 'block');
-    // création des boutons de control
+    // création des boutons de controle
         var controlsCarroussel = document.createElement('div');
         $(controlsCarroussel).attr('id', 'controls').css({position: 'relative', top: '300px'});
         $carrousel.append(controlsCarroussel);
@@ -627,8 +608,7 @@ $(document).ready(function(){
                 $img.css('display', 'none');
                 $currentImg = $img.eq(l);
                 $currentImg.css('display', 'block');
-            }
-            else{
+            } else{
                 l = 0;
             };
         });
@@ -639,11 +619,9 @@ $(document).ready(function(){
                 $img.css('display', 'none');
                 $currentImg = $img.eq(l);
                 $currentImg.css('display', 'block');
-            }
-            else{
+            } else{
                 l = $img.length-1;
             };
         });
-    
     };
 });
