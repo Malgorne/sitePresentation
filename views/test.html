@@ -1,0 +1,28 @@
+<table>
+    <th>
+        <td>Nom</td>
+        <td>Date de création</td>
+        <td>Dernière connection</td>
+        <td>Adresse Mail</td>
+        <td>Droits</td>
+    </th>
+    <a href='#'>
+        <tr>
+            <td>#{user.nom}</td>
+            <td>#{user.dateCreation}</td>
+            <td>#{user.derniereConnection}</td>
+            <td>#{user.mail}</td>
+            <td>#{user.droits}</td>
+        </tr>
+    </a>
+</table>
+
+
+<form action="#" methode="#">
+    <label for="droitsUser"></label><br>
+    <select name="droitsUser" id="droitsUser">
+        <option value="user">User</option>
+        <option value="demiGod">Demi-Dieu</option>
+        <option value="god">Dieu</option>
+    </select>
+</form>

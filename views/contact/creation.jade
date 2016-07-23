@@ -1,0 +1,20 @@
+extends ../layout
+
+block content
+    .row
+        .col-xs-12.col-md-4.col-md-offset-4
+            h2 Nouveau message
+            form(method='post', action='/articles/traitementCreation')
+              .form-group
+                if user
+                    label(for='titre') Titre du message: 
+                    input.require.form-control(type='text', name='titre', value= 'Saisissez le titre du message.')
+                    label(for='contenu') Votre message: 
+                    input.require.form-control(type='textarea', name='contenu', value= 'Veuillez taper votre message.')
+                    br
+                    input.btn.btn-success.btn-lg.col-xs-12(type='submit', value='Envoyer le message')
+                else
+                    p.bulle Vous devez vous identifier pour publier un nouvel article.
+                    a.btn.btn-success.btn-lg.col-xs-12(href='/users/connection', title='Connection') Je vais me connecter!
+                    
+    include ../footer.jade

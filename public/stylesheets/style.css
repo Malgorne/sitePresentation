@@ -1,0 +1,292 @@
+@charset "utf-8";
+* {margin: 0px;padding: 0px;}
+
+body{
+    background-color: rgb(208,217,227);
+}
+
+section p{
+    text-indent: 15px;
+}
+
+a:hover{
+    text-decoration: none; color: white;
+}
+
+/* MES FONTS */
+
+@font-face {
+    font-family: 'gooddogregular';
+    src: url('font_GoodDog/GoodDog-webfont.eot');
+    src: url('font_GoodDog/GoodDog-webfont.eot?#iefix') format('embedded-opentype'),
+         url('font_GoodDog/GoodDog-webfont.woff') format('woff'),
+         url('font_GoodDog/GoodDog-webfont.ttf') format('truetype'),
+         url('font_GoodDog/GoodDog-webfont.svg#gooddogregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'curse_casualregular';
+    src: url('font_curse_casual/curse_casual-webfont.eot');
+    src: url('font_curse_casual/curse_casual-webfont.eot?#iefix') format('embedded-opentype'),
+         url('font_curse_casual/curse_casual-webfont.woff2') format('woff2'),
+         url('font_curse_casual/curse_casual-webfont.woff') format('woff'),
+         url('font_curse_casual/curse_casual-webfont.ttf') format('truetype'),
+         url('font_curse_casual/curse_casual-webfont.svg#curse_casualregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* HEADER + CONTAINERS */
+
+*{
+    font-family: 'curse_casualregular', Arial, sans-serif;
+    color: rgb(77, 77, 77);
+}
+
+.container{
+    width: 80%; margin: auto; text-align: center;
+}
+
+h1{
+    font-family: 'gooddogregular',  Arial, sans-serif; font-size: 5em; color: rgb(155, 36, 57);
+    text-align:left;
+}
+
+.bulleRouge{
+    display: inline-block;
+    width: 135px; height: 135px; border-radius: 135px; line-height: 135px;
+    text-align: center; color: white; font-size: 1.6em;
+    background-color: rgb(232, 53, 86);
+}
+
+h3{
+    margin: 25px 0 25px 0;
+    font-family: 'gooddogregular',  Arial, sans-serif; font-size: 2em; color: rgb(155, 36, 57);
+    text-decoration: underline;
+}
+
+header nav, header p{
+    display: inline-block;
+    width: 45%;
+    list-style: none;
+    vertical-align: top;
+    text-align: left;
+}
+
+header p{
+    font-size: 1.2em;
+}
+
+header li{
+    display: inline-block;
+    margin-left: 2%;
+    font-size: 2em; text-transform: uppercase;
+}
+
+header li:hover>a{
+    color: rgb(97, 208, 212);
+}
+
+a{
+    text-decoration: none;
+    color: rgb(120,120,120); transition: color 1s;
+}
+
+header{
+    margin-top: 50px;
+}
+
+/* BODY */
+
+    /* ACCUEIL */
+
+#monPortrait{
+    width: 350px; height: 350px; border-radius: 350px; margin: 90px 0 90px 0;
+}
+
+.intro>div{
+    display: inline-block;
+    width: 600px; padding: 10px; margin-top: 40px;
+    vertical-align: top;
+}
+
+.intro>div>p{
+    width: 500px;
+    margin-top: 10px;
+    text-align: justify;
+}
+
+.partie1{
+    font-size: 3em;
+}
+
+.partie1>span{
+    font-size: 2em;
+}
+
+.menuIntro>ul{
+    margin: 50px 0 40px 0;
+}
+
+.menuIntro>ul>li {
+    display: inline-block;
+    width: 170px; height: 170px; border-radius: 170px; line-height: 170px;
+    text-align: center; font-size: 2em;
+}
+
+.menuIntro>ul>li>a{
+    color: white; text-transform: uppercase;
+}
+
+.rose{
+    background-color: rgb(232, 53, 86); transition: background-color 1s;
+}
+
+.rose:hover{
+    background-color: rgb(155, 36, 57);
+}
+
+.bleu{
+    background-color: rgb(97, 208, 212); transition: background-color 1s;
+}
+
+.bleu:hover{
+    background-color: rgb(65, 139, 141);
+}
+
+.jaune{
+    background-color: rgb(205, 198, 40); transition: background-color 1s;
+}
+
+.jaune:hover{
+    background-color: rgb(139, 139, 25);
+}
+
+.bulle{
+    background-color: rgb(205, 198, 40);
+}
+
+    /* RESUME */
+
+.menuIntern{
+    position: fixed; top: 200px; right: 5%;
+}
+
+.menuIntern>ul>li{
+    width: 135px; height: 135px; border-radius: 135px; line-height: 135px; margin: 0 0 5px 0;
+    text-align: center; font-size: 1.7em;
+    list-style: none;
+}
+
+.menuIntern>ul>li>a{
+    color: white;
+    text-transform: uppercase;
+}
+
+article{
+    margin-top: 25px;
+    font-size: 1.2em;
+}
+
+article>div{
+    display: inline-block;
+    width: 70%; padding: 0 25px 0 25px; vertical-align: top; padding-top: 25px;
+    border-top: 1px solid rgb(120,120,120);
+    text-align: justify;
+}
+
+article>div>a>p{
+    display: inline-block; vertical-align: top;
+    margin-bottom: 25px;
+}
+
+.imgReduite{
+    width: 80px; height: 80px; margin: 2%;
+}
+
+#compSecondaires>img{
+    margin: 0 10% 0 10%;
+}
+
+.competencesAnnexes{
+    display: inline-block;
+    width: 49%;
+}
+
+.listeXp{
+    margin-bottom: 10px;
+    font-size: 1.5em;
+}
+
+    /* PROJETS */
+
+.imgProjets{
+    width: 30%; height: 30%;
+    display: inline-block
+}
+
+.imgProjets + p{
+    width: 65%; padding: 0 0 0 10px;
+}
+
+#contactezMoi p{
+    font-size: 1.5em;
+    text-align: center;
+}
+
+#contactezMoi a{
+    display: block; width: 70px; height: 70px; border-radius: 70px; margin:auto; margin-top: 25px;
+    text-align: center; line-height: 70px; color: white;
+}
+
+    /* CONTACT */
+
+#imgPC{
+    width: 200px;
+    margin: 10px;
+    float: right;
+}
+
+#imgBiere{
+    width: 200px;
+    margin: 10px;
+    float: left;
+}
+
+#imgBiere + p{
+    margin-top: 125px;
+}
+
+#imgPC + p{
+    margin-top: 20px;
+}
+
+/* USERS */
+
+.boutons{
+    display: inline-block;
+    width: 135px; height: 135px; border-radius: 135px; line-height: 135px;
+}
+
+
+/* FOOTER */
+
+footer{
+    margin: 25px 0 25px 0; padding: 25px 0 25px 0;
+    background-color: rgb(232, 53, 86);
+}
+
+footer div{
+    display: inline-block; width: 24%;
+    text-align: center;
+}
+
+footer p{
+    text-indent: 0px;
+}
+
+footer img{
+    width: 40px; height: 40px; border-radius: 40px;
+}

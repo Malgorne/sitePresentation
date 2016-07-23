@@ -1,0 +1,72 @@
+extends layout
+
+block content
+    .container
+        .intro.row
+            img#monPortrait(src='../images/divers/benj_1.jpg', title='un bogosse', alt='un bogosse')
+    #monJeu.row
+        #competencesGauche
+            img#logoHtml(src='../images/logos/logoHTML.png', title='logo HTML',  alt='logo HTML')
+            img#logoCss(src='../images/logos/logoCSS.png', title='logo CSS',  alt='logo CSS')
+            img#logoJs(src='../images/logos/logoJS.png', title='logo JS',  alt='logo JS')
+            img#logoBootstrap(src='../images/logos/logoBootstrap.png', title='logo Bootstrap',  alt='logo Bootstrap')
+            img#logoJquery(src='../images/logos/logoJQuery.png', title='logo JQUERY',  alt='logo JQUERY')
+            img#logoAngularJS(src='../images/logos/logoAngularjs.png', title='logo AngularJS',  alt='logo AngularJS')
+        #competencesDroite
+            img#logoMongoDB(src='images/logos/logoMongodb.png', title='logo MongoDB',  alt='logo MongoDB')
+            img#logoNodeJS(src='images/logos/logoNodejs.png', title='logo NodeJS',  alt='logo NodeJS')
+            img#logoExpress(src='images/logos/logoExpressjs.png', title='logo Express',  alt='logo Express')
+            img#logoAjax(src='images/logos/logoAjax.png', title='logo AJAX',  alt='logo AJAX')
+            img#logoMeteor(src='images/logos/logoMeteor.png', title='logo METEOR',  alt='logo METEOR')
+            img#logoGit(src='images/logos/logoGit.png', title='logo GIT',  alt='logo GIT')
+        #reglesJeu.hidden
+            span Règles du jeu:
+            p Pour jouer, utilise les flèches pour te déplacer. Appuie sur espace pour sauter.
+            p Chaque tonneau sauté te fait gagner des points.
+            p Rejoinds Bouriquot pour gagner la partie!
+        #bacASable
+        #affichageScore
+        #messageAccueil
+            span Bouriquot, Notre Petit Panda !
+            p Attention ! Bouriquot s'est échapé du zoo! Dépèche toi de le retrouver ! Essaye de le ramener, il s'est réfugié au sommet d'un chantier ! Lourd et imposant, il provoque de gros dégats en renversant des tonneaux.
+            .boutonsjeux
+                a#start(title='début du jeu') JOUER
+                a(href='/resume', title='CV') CV
+        #victoire.hidden
+            span C'est gagné !
+            p Wouhou ! Bien joué !
+            p En cadeau, découvre le reste de mes compétences !
+            p Veux-tu rejouer ? !
+            .boutonsjeux
+                a(href='/', title='retour au jeu') Oh oui !
+                a(href='/resume', title='CV') Oh non !
+        #defaite.hidden
+            span Bouriquot, Notre Petit Panda
+            p C'est perdu ! Veux-tu rejouer ? !
+            .boutonsjeux
+                a(href='/', title='retour au jeu') Oh oui !
+                a(href='/resume', title='CV') Oh non !
+        #monPanda
+            img#imagePanda(src='../images/jeu1/framePandaTest.png', title='un panda', alt='un panda')
+        #tonneauDepart
+        #passerelle1.passerelles
+        #passerelle2.passerelles
+        #passerelle3.passerelles
+        #passerelle4.passerelles
+        #passerelle5.passerelles
+        #echelle1.echelles
+        #echelle2.echelles
+        #echelle3.echelles
+        #echelle4.echelles
+        #echelle5.echelles
+        #echelle6.echelles
+        #monPersonnage
+            img#imagePersonnage(src='../images/jeu1/personnage.png', title='un héro', alt='un héro')
+        #audioPlayer
+            audio#musiqueJeu(src='../sons/musiqueJeu.mp3', loop) Veuillez mettre à jour votre navigateur.
+            audio#musiqueSaut(src='../sons/saut.wav') Veuillez mettre à jour votre navigateur.
+            audio#musiqueCompetence(src='../sons/piece.wav') Veuillez mettre à jour votre navigateur.
+            audio#musiqueGameOver(src='../sons/gameOver.wav') Veuillez mettre à jour votre navigateur.
+            audio#musiqueVictory(src='../sons/niveauTermine.wav') Veuillez mettre à jour votre navigateur.
+        script(type='text/javascript', src='../javascripts/monJeu.js')
+    include ./footer.jade

@@ -1,0 +1,140 @@
+.parametresPartie{
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    background-color: cadetblue;
+    font-size: 4em;
+    color: white;
+}
+
+.boutonsChoixNbr{
+    
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    box-shadow: -2px 1px 1px 1px rgb(139, 139, 25);
+    margin: 30px 0px 0px 75px;
+    line-height: 50px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    font-size: 2em;
+    background-color: rgb(205, 198, 40);
+}
+
+#choixPersonnage{
+    position:relative;
+    height:200px;
+    width:700px;
+    margin:auto;
+    margin-top: 30px;
+    margin-bottom: 200px;
+}
+
+.liChoixPerso{
+    position:absolute;
+    top:0;
+    left:0;
+    list-style: none;
+}
+
+.liChoixPerso img{
+    width: 300px;
+    border-radius: 10px;
+}
+
+.next, .prev{
+    display: inline-block;
+    width: 150px;
+    height: 50px;
+    border-radius: 10px;
+    box-shadow: -2px 1px 1px 1px rgb(139, 139, 25);
+    line-height: 50px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    font-size: 2em;
+    background-color: rgb(205, 198, 40);
+}
+
+#bacASable {
+    position: relative;
+    width: 600px; height: 400px;
+    margin: auto; margin-top: 10px;
+    background-image: url('../images/jeu2/namek.png'); background-size: cover; overflow: hidden;
+}
+
+.finDuJeu{
+    position: relative;
+    width: 600px; height: 400px;
+    margin: auto; margin-top: 10px;
+    color: red;
+    font-size: 5em;
+}
+
+.divJoueurs{
+    position: absolute;
+    width: 115px; height: 100px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.containerScore{
+    position: absolute;
+    width: 15px;
+    height: 100px; top: 0;
+    background-color: red;
+    border-radius: 2px;
+}
+
+.scoreJoueur{
+    position: absolute;
+    width: 11px;
+    top: 2px; left: 2px;
+    background-color: yellow;
+    border-radius: 2px;
+}
+
+.rochers{
+    position: absolute;
+    width: 60px; height: 60px;
+    background-image: url('../images/jeu2/meteorite.png'); background-size: cover;
+    z-index: 100;
+    -webkit-animation: tourner 2s linear infinite, tombe 2s linear; -moz-animation: tourner 2s linear infinite, tombe 2s linear; animation: tourner 2s linear infinite, tombe 2s linear;
+}
+
+
+@-webkit-keyframes tourner {
+    0% {transform:rotate(0deg);}
+    100% {transform:rotate(360deg);}
+}
+
+@-moz-keyframes tourner {
+    0% {transform:rotate(0deg);}
+    100% {transform:rotate(360deg);}
+}
+
+@keyframes tourner {
+    0% {transform:rotate(0deg);}
+    100% {transform:rotate(360deg);}
+}
+
+@-webkit-keyframes tombe {
+    0% {top:-60px;}
+    100% {top:300px;}
+}
+
+@-moz-keyframes tombe {
+    0% {top:-60px;}
+    100% {top:300px;}
+}
+
+@keyframes tombe {
+    0% {top:-60px;}
+    100% {top:300px;}
+}

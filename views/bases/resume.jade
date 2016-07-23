@@ -1,0 +1,99 @@
+extends ../layout
+
+block content
+    .container
+        nav.menuIntern.row
+            ul
+                li.rose
+                    a(href='#competences', title='Compétences Professionnelle') compétences
+                li.bleu
+                    a(href='#xpPro', title='Expérience Professionnelle') expérience
+                li.jaune
+                    a(href='#formation', title='Formation') formation
+        article.row
+            h2.bulleRouge Intro
+            .row
+                p Salarié chez BNP Paribas depuis 7 ans, j'ai développé, en 
+                    span.bulle autodidacte 
+                    | , des 
+                    span compétences  en programmation
+                    | de sites web. J’intègre actuellement une spécialisation de développeur-intégrateur web 
+                    span.bulle full Stack JavaScript
+                    | .
+                p Cette spécialisation permettra de valider les compétences déjà acquises grâce au site Openclassrooms et d'en développer de nouvelles dans des langages et technologies d'avenir - reprises sur mon CV. Ces compétences seront sanctionnées par un 
+                    span.bulle diplôme professionnel de niveau 2
+                    |  (équivalent bac +3/4).
+                    
+                p Afin de valider cette spécialisation à 90% pratique, je cherche une 
+                    span.bulle mission de 3 mois
+                    |  dans une entreprise aillant besoin du renfort d'un développeur web avec des compétences poussées en 
+                    span.bulle JavaScript
+                    |  et technologies front et back-end en découlant.
+                p Ma curiosité et mon auto-formation m'ont poussé à étudier en profondeur le PHP ce qui me permet d'être à l'aise avec ce langage, MySql, la POO, twig et avec le framework 
+                    span.bulle Symfony2
+                    |  (et plus modestement Symfony3). J'ai aussi pris l'habitude de travailler en équipe à travers l'utilisation de 
+                    span.bulle Git/GitHub
+                    | .
+        article.row
+            h2#competences.bulleRouge Compétences
+            div
+                h3 Langues maternelles
+                br
+                img#logoHtml.imgReduite(src='../images/logos/logoHTML.png', title='logo HTML',  alt='logo HTML')
+                img#logoCss.imgReduite(src='../images/logos/logoCSS.png', title='logo CSS',  alt='logo CSS')
+                img#logoJs.imgReduite(src='../images/logos/logoJS.png', title='logo JS',  alt='logo JS')
+                img#logoBootstrap.imgReduite(src='../images/logos/logoBootstrap.png', title='logo Bootstrap',  alt='logo Bootstrap')
+                img#logoJquery.imgReduite(src='../images/logos/logoJQuery.png', title='logo JQUERY',  alt='logo JQUERY')
+                img#logoAngularJS.imgReduite(src='../images/logos/logoAngularjs.png', title='logo AngularJS',  alt='logo AngularJS')
+                br
+                img#logoMongoDB.imgReduite(src='../images/logos/logoMongodb.png', title='logo MongoDB',  alt='logo MongoDB')
+                img#logoNodeJS.imgReduite(src='../images/logos/logoNodejs.png', title='logo NodeJS',  alt='logo NodeJS')
+                img#logoExpress.imgReduite(src='../images/logos/logoExpressjs.png', title='logo Express',  alt='logo Express')
+                img#logoAjax.imgReduite(src='../images/logos/logoAjax.png', title='logo AJAX',  alt='logo AJAX')
+                img#logoMeteor.imgReduite(src='../images/logos/logoMeteor.png', title='logo METEOR',  alt='logo METEOR')
+                img#logoGit.imgReduite(src='../images/logos/logoGit.png', title='logo GIT',  alt='logo GIT')
+                h3 Lues, parlées, écrites
+                #compSecondaires
+                    img.imgReduite(src='../images/logos/logoPhp.png', title='logo PHP'  alt='logo PHP')
+                    img.imgReduite(src='../images/logos/logoMysql.png', title='logo MySQL'  alt='logo MySQL')
+                    img.imgReduite(src='../images/logos/logoSymfony2.png', title='logo Symfony2'  alt='logo Symfony2')
+                section.row
+                    div.competencesAnnexes.col-xs-12.col-md-6
+                        h3 Mais aussi un commercial
+                        ul 
+                            li Accueil
+                            li
+                                span.bulle Relation clientèle
+                            li Ecoute / Négociation / vente
+                            li
+                                span.bulle Travail en équipe
+                            li Organisation
+                    .competencesAnnexes.col-xs-12.col-md-6
+                        h3 Et un ancien banquier
+                        ul.competencesBonus
+                            li Epargne réglementée
+                            li Crédit à la consommation
+                            li Services bancaires
+                            li Conseils financiers
+                            li Réglementation bancaire
+        article.row
+            h2#xpPro.bulleRouge Expérience
+            div
+                ul
+                    li.listeXp 2009 à 2016: Conseiller clientèle - BNP Paribas, Saint Germain en Laye;
+                    li.listeXp 2007 à 2008: Accueil - Crédit Mutuel, Paris Montparnasse;
+                    li.listeXp 2004 à 2006: Stagiaire - Caisse d'Epargne, Amiens.
+        article.row
+            h2#formation.bulleRouge Formation
+            div
+                ul
+                    li.listeXp 2016: IFOCOP - Développeur-Intégrateur Web fullStack JavaScript;</li>
+                    li.listeXp 2015: Openclassrooms - Certificats Html/Css, Git/GitHub, 
+                        span.bulle Php/MySQL
+                        | , 
+                        span.bulle Symfony2
+                        | ;
+                    li.listeXp 2011: BNP Paribas - Certification AMF;
+                    li.listeXp 2006: Lycée St Denis - BTS Banque, option "marché des particuliers";
+                    li.listeXp 2003: Lycée Madeleine Michelis - Baccalauréat littéraire, spécialisation allemand.
+    include ../footer.jade

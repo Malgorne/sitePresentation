@@ -1,0 +1,23 @@
+extends ../layout
+
+block content
+    .container
+        article.row
+            h2.bulleRouge CONTACT
+            div
+                img#imgPC(src='../images/divers/ordinateurs.png', alt='Des ordinateurs', title='des ordinateurs')
+                
+                p Si tu as aimé ma présentation, Peut-être souhaites-tu travailler avec moi? Ou alors tu as trop de travail? Beaucoup d'ordinateurs mais pas assez de collaborateurs? Un projet passionant à me confier?
+                
+                img#imgBiere(src='../images/divers/biere.png', alt='Une bière', title='Une bière')
+
+                p Appelle moi, envoie moi un mail ou twitte moi. Je serais ravis d'échanger avec toi sur mon avenir, l'informatique ou tout autre sujet dans tes locaux ou à la terrasse d'un café.
+                
+            if user == 'admin'
+            
+                .row
+                    #contactezMoi
+                        p Envie de bosser avec moi? C'est par ici!
+                        a.bleu(href='/contact/creation', title='Envoie moi un message!') Let's talk!
+                
+    include ../footer.jade

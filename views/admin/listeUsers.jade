@@ -1,0 +1,25 @@
+extends ../layout
+
+block content
+
+    .row
+        .col-xs-12.col-md-8.col-md-offset-2
+            h2 Liste des utilisateurs
+            if listeUsers
+                table.table
+                    tr.row
+                        th.col-xs-2 Nom
+                        th.col-xs-2 Date de création
+                        th.col-xs-2 Dernière connection
+                        th.col-xs-2 Adresse Mail
+                        th.col-xs-2 Droits
+                    for user in listeUsers
+                        tr.row
+                            td
+                                a(href='/admin/user/profil?nom=#{user.nom}') #{user.nom}
+                            td #{moment(user.dateCreation).format("DD-MM-YYYY")}
+                            td #{moment(user.derniereConnection).format("DD-MM-YYYY")}
+                            td #{user.mail}
+                            td #{user.droits}
+                a.btn.rose.col-xs-12(href='/admin/suppressionInactifs') PURGER COMPTES INACTIFS
+    include ../footer.jade

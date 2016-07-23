@@ -1,0 +1,50 @@
+extends ../layout
+
+block content
+    .container
+        nav.menuIntern
+            ul
+                li.rose
+                    a(href='#projet1', title='Premier projet') Projet 1
+                li.bleu
+                    a(href='#projet2', title='Second projet') Projet 2
+                li.jaune
+                    a(href='#projet3', title='Troisième projet') Projet 3
+        article
+            br
+            h2#projet1.bulleRouge Projet 1
+            .row
+                a(href='/#monJeu')
+                    h3 Mon jeu CV!
+                    img.imgProjets(src='../images/divers/benj_noel.jpg', alt='mon panda', title='mon panda')
+                    p
+                        | Premier TP de la formation chez IFOCOP. Viens déloger le panda!
+                        br
+                        | Réalisé entièrement en JavaScript et JQuery, l'objectif de ce TP était de mettre en pratique les compétences Front-End acquises avec un projet fun.
+            br
+            h2#projet2.bulleRouge Projet 2
+            .row
+                a(href='/jeuMulti/listeParties')
+                    h3 Mon jeu à deux!
+                    img.imgProjets(src='../images/divers/benj_noel.jpg', alt='mon panda', title='mon panda')
+                    p
+                        | Second TP de la formation IFOCOP. Viens défier tes amis!
+                        br
+                        | Réalisé entièrement en JavaScript, l'objectif de ce TP sera de mettre en pratique les compétences Back-End acquises avec un projet fun.
+            br
+            h2#projet3.bulleRouge Projet 3
+            .row
+                a(href='/')
+                    h3 Mon back-end!
+                    img.imgProjets(src='../images/divers/benj_noel.jpg', alt='mon panda', title='mon panda')
+                    p
+                        | Troisième TP de la formation IFOCOP. Rejoinds mon réseau!
+                        br
+                        | Réalisé entièrement en JavaScript, l'objectif de ce TP sera de mettre en pratique les compétences Back-   End et Front-End acquises à travers la réalisation d'un système de réseau social.
+            br
+            h2.bulleRouge Parlons-en !
+            .row
+                #contactezMoi
+                    p Tu veux en voir plus? Tu as un job passionnant à me proposer?? C'est par ici!
+                    a.bleu(href='/contact/contact', title='contactez moi!') Let's talk!
+    include ../footer.jade

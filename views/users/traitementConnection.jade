@@ -1,0 +1,14 @@
+extends ../layout
+
+block content
+    .row
+        .col-xs-4.col-xs-offset-4
+            h2 Bien connecté!
+            p Tu peux poursuivre ta navigation #{nom}!
+            br
+            br
+    .row
+        .col-xs-4.col-xs-offset-4
+            if user == 'admin'
+                a.bulleRouge.jaune.col-xs-12.col-md-6(href='/contact/creation') M'écrire!
+            a.bulleRouge.bleu.col-xs-12.col-md-6.col-md-offset-4(href='/jeuMulti/listeParties') Jeu multi
