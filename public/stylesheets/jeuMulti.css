@@ -76,6 +76,13 @@
     font-size: 5em;
 }
 
+.finDuJeu a{
+        display: inline-block;
+    width: 200px; height: 50px; margin: 30px; border-radius: 10px; box-shadow: -2px 1px 1px 1px rgb(139, 139, 25); 
+    line-height: 50px; text-decoration: none; text-align: center; font-weight: bold; color: white; font-size: 0.5em;
+    background-color: rgb(205, 198, 40);
+}
+
 .divJoueurs{
     position: absolute;
     width: 115px; height: 100px;
@@ -88,7 +95,7 @@
     position: absolute;
     width: 15px;
     height: 100px; top: 0;
-    background-color: red;
+    background-color: yellow;
     border-radius: 2px;
 }
 
@@ -96,7 +103,7 @@
     position: absolute;
     width: 11px;
     top: 2px; left: 2px;
-    background-color: yellow;
+    background-color: red;
     border-radius: 2px;
 }
 

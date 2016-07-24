@@ -1,14 +1,8 @@
 
 var io = require('socket.io')();
-
-//*********************************** JEU MULTI *******************************************************
-
-// on crée le namespace
-
+// on crée le namespace pour le jeu
 var nspJeuMulti = io.of('/ioJeuMulti');
-
 var listeParties = [];
-
 
 nspJeuMulti.on('connection', function (socket, truc) {
     var user;
@@ -115,15 +109,21 @@ nspJeuMulti.on('connection', function (socket, truc) {
         // retire la partie de la liste du serveur en cas de déco
             if(partie){
                 for(var i = 0; listeParties[i]; i++){
-                    if(listeParties[i].roomName == partie.roomName){
+                    for(var j = 0; listeParties[i].listeJoueurs[j]; j++){
+                    // on retire de la partie le joueur qui s'est déco
+                        if(user.user.nom == listeParties[i].listeJoueurs[j]){
+                            listeParties[i].listeJoueurs.splice(j, 1);
+                        };
+                    };
+                    if(listeParties[i].roomName == partie.roomName && listeParties[i].listeJoueurs.length == 0){
+                    // sil ny a plus de joueur dans la partie, on lannule
+                        socket.broadcast.emit('annulationPartie', {partie: listeParties[i].roomName});
                         listeParties.splice(i, 1);
                     };
                 };
             };
         });
     });
-    
-    
 });
 
 

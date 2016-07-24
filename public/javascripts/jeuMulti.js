@@ -14,6 +14,11 @@ var socket = io('/ioJeuMulti');
     var partie;
     var start;
     
+    var musique = {
+        jeu: document.querySelector('#musiqueJeu'),
+        victoire: document.querySelector('#musiqueVictoire')
+    };
+    
     var listeSpritesPerso = [
             'Broly',
             'Bubu',
@@ -149,6 +154,13 @@ var socket = io('/ioJeuMulti');
             creationParamsParties(partieArejoindre);
         };
     });
+// gère l'annulation de la partie si tout le monde se déco avant le début
+    socket.on('annulationPartie', function(partie){
+        if(!start){
+            partie = partie.partie;
+            document.getElementById(partie).remove();
+        };
+    });
     
     socket.on('enAttente', function(data){
     // met a jour la partie à chaque nouveau joueur qui rejoind la partie
@@ -176,6 +188,7 @@ var socket = io('/ioJeuMulti');
                     ownPerso.normal();
                 // lance la génération des rochers après un petit délai
                     start = true;
+                    musique.jeu.play();
                     setInterval(function(){
                         genererRochers();
                     }, 5000);
@@ -281,9 +294,11 @@ var socket = io('/ioJeuMulti');
         };
     // si le serveur nous envoi un gagnant on stop le jeu
         if(data.winner){
+            musique.jeu.pause();
+            musique.victoire.play();
             $('#bacASable').remove();
             var finDuJeu = document.createElement('div');
-            $(finDuJeu).addClass('finDuJeu').html('Et le gagnant est: ' + data.winner);
+            $(finDuJeu).addClass('finDuJeu').html('Et le gagnant est: ' + data.winner +'<br/>Voulez-vous rejouer?<br/><a href="/jeuMulti/listeParties" title="Jeu multijoueur">Oh oui!</a><a href="/resume" title="CV">Oh non!</a>');
             $('#parametragePartie').append(finDuJeu);
         };
     });

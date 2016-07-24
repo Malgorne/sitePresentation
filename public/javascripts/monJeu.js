@@ -1,15 +1,11 @@
 $(document).ready(function() {
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-    
 // MES VARIABLES GLOBALES
-    
     var poursuivre;                                             // active-désactive le déplacement
     var lancementAnimation = true;                              // évite répétition animationFrame
     var lancementSaut = true;                                   // évite de sauter pendant un saut
     var victoire = false;                                       // fin du jeu
-    
 // MUSIQUES DU JEU
-    
     var musique = {
         jeu: document.querySelector('#musiqueJeu'),
         saut: document.querySelector('#musiqueSaut'),
@@ -17,15 +13,12 @@ $(document).ready(function() {
         gameOver: document.querySelector('#musiqueGameOver'),
         victory: document.querySelector('#musiqueVictory'),
     };
-    
 // VERIFIE SI LES OBJETS SONT DANS LE JEU. RENVOI UN BOOLEAN
-    
     var airDeJeux = {
         haut: $('#bacASable').position().top,
         droite: $('#bacASable').position().left + $('#bacASable').width(),
         bas: $('#bacASable').position().top + $('#bacASable').height(),
         gauche: $('#bacASable').position().left,
-        
         dansLeJeu: function(objetTeste) {
             var dansLeJeu = true;
             if(objetTeste.orientation == 'frameHaut' && objetTeste.haut < airDeJeux.haut){
@@ -43,9 +36,7 @@ $(document).ready(function() {
             return dansLeJeu;
         }
     };
-    
 // RECUPERE LISTE DES TROUX ET RETOURNE UN BOOLEAN SI UN OBJET EST DEDANS ET DECLENCHE LA CHUTTE
-    
     var dansUnTrou = function(objetTeste){
         var leTrou = false;
         $('.passerelles').each(function(i){
@@ -55,7 +46,6 @@ $(document).ready(function() {
                 bas: $('.passerelles')[i].offsetTop + $('.passerelles')[i].offsetHeight,
                 gauche: $('.passerelles')[i].offsetLeft
             };
-            
             if (objetTeste.bas == passerelle.haut){
                 if(passerelle.droite == airDeJeux.droite ){
                     if(objetTeste.droite < passerelle.gauche){
@@ -68,26 +58,20 @@ $(document).ready(function() {
                     };
                 };
             };
-            
             if(leTrou && objetTeste.nom == 'joueur'){
                 var arriveeChutte = (Math.round(objetTeste.bas + 20)/100)*100;
-
                 $('#monPersonnage').animate({ top: arriveeChutte }, 500, function(){
                     objetTeste.bas = (Math.round(arriveeChutte/100))*100;
                 });
             };
-            
             if(leTrou && objetTeste.nom == 'tonneau') {
                 var arriveeChutte = objetTeste.bas + 70;
                 $(objetTeste).animate({ top: arriveeChutte }, 500);
             };
-            
             leTrou=false;
         });
     };
-    
 // RECUPERE LISTE DES ECHELLES, RENVOIE UN BOOLEAN
-    
     var dansUneEchelle = function(objetTeste){
         var lEchelle = false;
         $('.echelles').each(function(i){
@@ -98,37 +82,28 @@ $(document).ready(function() {
                 bas: $('.echelles')[i].offsetTop + $('.echelles')[i].offsetHeight,
                 gauche: $('.echelles')[i].offsetLeft
             };
-            
             if ( objetTeste.orientation == 'frameHaut' && objetTeste.droite <= echelle.droite && echelle.gauche <= objetTeste.gauche && echelle.haut < objetTeste.bas && objetTeste.haut <= echelle.bas ) {
                 lEchelle = true;
             };
-            
             if ( objetTeste.orientation == 'frameDroite' && objetTeste.droite <= echelle.droite && echelle.gauche <= objetTeste.gauche && echelle.haut < objetTeste.bas && objetTeste.bas < echelle.bas ) {
                 lEchelle = true;
             };
-            
             if ( objetTeste.orientation == 'frameBas' && objetTeste.droite <= echelle.droite && echelle.gauche <= objetTeste.gauche && echelle.haut <= objetTeste.bas && objetTeste.bas <= echelle.bas ) {
                 lEchelle = true;
             };
-            
             if ( objetTeste.orientation == 'frameGauche' && objetTeste.droite <= echelle.droite && echelle.gauche <= objetTeste.gauche && echelle.haut < objetTeste.bas && objetTeste.bas < echelle.bas ) {
                 lEchelle = true;
             };
-            
             if ( objetTeste.orientation == 'frameSaut' && objetTeste.droite <= echelle.droite && echelle.gauche <= objetTeste.gauche && echelle.haut < objetTeste.bas && objetTeste.bas < echelle.bas ) {
                 lEchelle = true;
             };
-
             if(objetTeste.nom == 'tonneau' && objetTeste.droite <= echelle.droite && echelle.gauche <= objetTeste.gauche && echelle.haut == objetTeste.bas){
                 lEchelle = true;
             };
         });
-        
         return lEchelle;
     };
-    
 // FINS DU JEU
-    
     function looser(){
         musique.jeu.pause();
         musique.gameOver.play();
@@ -138,12 +113,10 @@ $(document).ready(function() {
         $('.tonneauxQuiRoulentDroite').addClass('hidden');
         $('.tonneauxQuiRoulentGauche').addClass('hidden');
     };
-    
     function winner(){
         victoire = true;
         musique.jeu.pause();
         musique.victory.play();
-        
         $('#victoire').removeClass('hidden');
         $('#reglesJeu').addClass('hidden');
         $('#logoHtml').css({display: 'block'});
@@ -158,28 +131,22 @@ $(document).ready(function() {
         $('#logoAjax').css({display: 'block'});
         $('#logoMeteor').css({display: 'block'});
         $('#logoGit').css({display: 'block'});
-        
         panda.defaite();
     };
-    
 // SCORE
-    
     var score = {
         total: 0,
         gagnerPoint: function(personnageJoueur, monTonneau){
             var seuilHaut = monTonneau.haut - 30;
             var point = false;
-            
             if(personnageJoueur.bas >= seuilHaut && personnageJoueur.bas <= monTonneau.haut){
                 if(personnageJoueur.gauche <= monTonneau.droite && personnageJoueur.gauche >= monTonneau.gauche){
                     musique.competence.play();
                     point = true;
                 };
             };
-            
             return point;
         },
-        
         affichageCompetences: function(){
             switch(this.total) {
                 case 100:
@@ -224,22 +191,16 @@ $(document).ready(function() {
             };
         }
     };
-    
 // MAJ LE SCORE
-    
     function afficherLeScore(){
         score.affichageCompetences();
         $('#affichageScore').html('<p>SCORE : ' + score.total + '</p>');
-        
         window.requestAnimationFrame(function() {
             afficherLeScore();
         });
     };
-    
     afficherLeScore();
-    
 // LES TONNEAUX
-    
     var tonneaux = {
         listeTonneaux: [],
         nouveauTonneau: function() {
@@ -250,9 +211,7 @@ $(document).ready(function() {
             this.deplacementTonneaux(nouveauTonneau);
         },
         deplacementTonneaux: function(nouveauTonneau){
-            
     // CREATION DE LA POSITION DE CHAQUE TONNEAU + ORIENTATION + VITESSES + ARRIVEE CHUTTE
-            
             nouveauTonneau.nom = 'tonneau';
             nouveauTonneau.orientation = 'frameDroite';
             nouveauTonneau.vitesseDeplacementHorizontal = 0,
@@ -260,21 +219,15 @@ $(document).ready(function() {
             var arriveeChutte;
             var i = 0; // pour un seul random dans echelle
             var j = 0; // pour gagner un seul point
-            
     // ANIMATION DES TONNEAUX
-            
             function rouler (monTonneau) {
-                
         // MET A JOUR LA POSITION DU TONNEAU
-                
                 monTonneau.haut = $(monTonneau).position().top;
                 monTonneau.droite = $(monTonneau).position().left + $(monTonneau).width();
                 monTonneau.bas = $(monTonneau).position().top + $(monTonneau).height();
                 monTonneau.bas = Math.round(monTonneau.bas/100)*100;
                 monTonneau.gauche = $(monTonneau).position().left;
-                
         // GAGNER DES POINTS
-                
                 var gagnerUnPoint = score.gagnerPoint(personnageJoueur, monTonneau);
                 if(gagnerUnPoint && j == 0){
                     score.total += 100;
@@ -283,27 +236,16 @@ $(document).ready(function() {
                 if(!gagnerUnPoint){
                     j = 0;
                 };
-                
         // VERIFIE LES COLLISIONS
-                
                 tonneaux.collision(personnageJoueur, monTonneau);
-                
         // VERIFIE SI DANS LE JEU DEPLACEMENT VERS LA DROITE
-                
                 var dansLeJeu = airDeJeux.dansLeJeu(monTonneau);
-                
         // VERIFIE SI DANS UNE ECHELLE
-                
                 var dansLechelle = dansUneEchelle(monTonneau);
-                
         // VERIFIE SI DANS UN TROU
-                
                 dansUnTrou(monTonneau);
-                
         // DEPLACEMENT HORIZONTAL DROITE
-                
                 monTonneau.vitesseDeplacementHorizontal = 0;
-                
                 if(monTonneau.orientation == 'frameDroite' && dansLeJeu) {
                     monTonneau.vitesseDeplacementHorizontal = 1;
                 } else {
@@ -311,13 +253,9 @@ $(document).ready(function() {
                     $(monTonneau).removeClass('tonneauxQuiRoulentDroite');
                     $(monTonneau).addClass('tonneauxQuiRoulentGauche');
                 };
-                
         // VERIFIE SI DANS LE JEU DEPLACEMENT GAUCHE
-                
                 var dansLeJeuBis = airDeJeux.dansLeJeu(monTonneau);
-                
         // DEPLACEMENT HORIZONTAL GAUCHE
-                
                 if(monTonneau.orientation == 'frameGauche' && dansLeJeuBis) {
                     monTonneau.vitesseDeplacementHorizontal = -1;
                 } else {
@@ -325,9 +263,7 @@ $(document).ready(function() {
                     $(monTonneau).removeClass('tonneauxQuiRoulentGauche');
                     $(monTonneau).addClass('tonneauxQuiRoulentDroite');
                 };
-                
         // DEPLACEMENT SI DANS UNE ECHELLE
-                
                 if(dansLechelle && i == 0){
                     var nombreAleatoire = Math.random();
                     if(nombreAleatoire <= 0.5){
@@ -339,37 +275,26 @@ $(document).ready(function() {
                     };
                     i++;
                 };
-                
         // évite de vérifier la condition plusieurs fois par échelle
-                
                 if(!dansLechelle){
                     i=0;
                 };
-                
         // POINT DE CHUTTE
-                
                 if(monTonneau.haut >= arriveeChutte){
                     monTonneau.vitesseDeplacementVertical = 0;
                 };
-                
         // MOUVEMENT
-                
                 $(monTonneau).css({ left: '+=' + monTonneau.vitesseDeplacementHorizontal,
                                     top: '+=' + monTonneau.vitesseDeplacementVertical });
-                
         // SUPPRIME LE TONNEAU EN BAS DU JEU
-                
             if(!dansLeJeuBis && monTonneau.bas >= airDeJeux.bas){
                     monTonneau.remove();
             };
-                
         // RELANCE ANIMATION
-                
                 window.requestAnimationFrame(function() {
                     rouler(monTonneau);
                 });
             };
-            
             rouler(nouveauTonneau); // PREMIER LANCEMENT ANIMATION
         },
         collision: function(personnageJoueur, monTonneau){
@@ -378,48 +303,34 @@ $(document).ready(function() {
                 droite: monTonneau.droite - 2,
                 bas: monTonneau.bas - 2,
                 gauche: monTonneau.gauche + 2
-            }
-            
+            };
     //tonneau arrive de la gauche
-            
             if(personnageJoueur.droite >= tonneauTestCollision.gauche && personnageJoueur.gauche <= tonneauTestCollision.gauche && personnageJoueur.haut <= tonneauTestCollision.haut && personnageJoueur.bas >= tonneauTestCollision.bas){
                 looser();
             };
-            
     // tonneau arrive de la droite
-            
             if(personnageJoueur.gauche <= tonneauTestCollision.droite && personnageJoueur.droite >= tonneauTestCollision.droite && personnageJoueur.haut <= tonneauTestCollision.haut && personnageJoueur.bas >= tonneauTestCollision.bas){
                 looser();
             };
-            
     //tonneau tombe vers la gauche
-            
             if(personnageJoueur.top <= tonneauTestCollision.bas && personnageJoueur.bas >= tonneauTestCollision.bas && personnageJoueur.droite >= tonneauTestCollision.gauche && personnageJoueur.gauche <= tonneauTestCollision.gauche){
                 looser();
             };
-            
     // tonneau tombe vers la droite
-            
             if(personnageJoueur.top <= tonneauTestCollision.bas && personnageJoueur.bas >= tonneauTestCollision.bas && personnageJoueur.gauche <= tonneauTestCollision.droite && personnageJoueur.droite <= tonneauTestCollision.droite){
                 looser();
             };
-            
     // contact bas droite
-            
             if(personnageJoueur.bas >= tonneauTestCollision.haut && personnageJoueur.haut <= tonneauTestCollision.haut && personnageJoueur.droite >= tonneauTestCollision.gauche && personnageJoueur.gauche <= tonneauTestCollision.gauche){
                 looser();
             };
-            
     // contact bas gauche
-            
             if(personnageJoueur.bas >= tonneauTestCollision.haut && personnageJoueur.haut <= tonneauTestCollision.haut && personnageJoueur.droite >= tonneauTestCollision.droite && personnageJoueur.gauche <= tonneauTestCollision.droite){
                 looser();
             };
-        },
+        }
     };
-    
 // LE MECHANT PANDA
-    
     var panda = {
         haut: $('#monPanda').position().top,
         droite: $('#monPanda').position().left + $('#monPanda').width(),
@@ -442,71 +353,42 @@ $(document).ready(function() {
             var monObjetPanda = this;
             var i = 0; // compteur de frames
             var framesParSeconde = 5; // reglage vitesse animation
-            
-/*pour tester*/            /*var j = 0;*/
-            
     // ANIMATION DU PANDA
-            
             function monAnimation(){
-                
         //  REGLAGE VITESSE
-                
                 setTimeout(function() {
-                    
             // MAJ COORDONNEES PANDA
-                    
                     monObjetPanda.haut = $('#monPanda').position().top;
                     monObjetPanda.droite = $('#monPanda').position().left + $('#monPanda').width();
                     monObjetPanda.bas = $('#monPanda').position().top + $('#monPanda').height();
                     monObjetPanda.gauche = $('#monPanda').position().left;
-                    
             // SI PANDA BOUSCULE TONNEAU DE DEPART : CREATION DUN NOUVEAU TONNEAU + DEPLACEMENT VERS LA GAUCHE
-                    
                     if(monObjetPanda.droite > $('#tonneauDepart').position().left){
-                        
-/*pour tester*/                        /*j++;*/
-                        
                         tonneaux.nouveauTonneau(); // ligne pour désactiver la fabrication de tonneaux
                         monObjetPanda.vitesseDeplacementHorizontal = -5;
                     };
-                    
             // VERIFIE SI PANDA SORT DU JEU CHANGEMENT DEPLACEMENT VERS LA DROITE
-                    
                     if (monObjetPanda.gauche < airDeJeux.gauche) {
                         monObjetPanda.vitesseDeplacementHorizontal = 5;
                     };
-                    
             // MOUVEMENT DU PANDA
-                    
                     $('#monPanda').css({    width: monObjetPanda.frameDeplacement.containerLargeur[i] + 'px',
                                             height: monObjetPanda.frameDeplacement.containerHauteur[i] + 'px',
                                             left: monObjetPanda.gauche + monObjetPanda.vitesseDeplacementHorizontal + 'px' });
-                    
             // MOUVEMENT IMAGE PANDA
-                    
                     $('#imagePanda').css({  top: monObjetPanda.frameDeplacement.imageHauteur[i] + 'px',
                                             left: monObjetPanda.frameDeplacement.imageLargeur[i] + 'px' });
                     i++; // maj compteur frames
-
                     if(i == monObjetPanda.frameDeplacement.containerLargeur.length) { // boucle frames
                         i = 0; // RAZ compteur frame
                     };
-                    
             // BOUCLE ANIMATION
-                    
-/* pour tester*/                    /*if(j<1){*/
-                    
                     window.requestAnimationFrame(function() {
                         monAnimation();
                     });
-                    
-/*pour tester*/                   /*}*/
-                    
                 }, 1000/framesParSeconde);// fin setTimeout
             };
-            
     // LANCEMENT PREMIER ANIMATION
-            
             monAnimation();
         },
         defaite: function() {
@@ -527,13 +409,10 @@ $(document).ready(function() {
                     });
                 }, 1000/framesParSeconde);
             };
-            
             monAnimation();
         }
     };
-    
 // PERSONNAGE DU JOUEUR
-    
     var personnageJoueur = {
         nom: 'joueur',
         haut: $('#monPersonnage').position().top,
@@ -589,48 +468,31 @@ $(document).ready(function() {
             var monObjet = this;
             var i = 0; // compteur pour frames
             var framesParSeconde = 20; // réglage vitesse animation
-            
     // DEPLACEMENT
-            
             function monAnimation() {
-                
         // GESTION DE LA VITESSE DE DEFILEMENT DES FRAMES
-                
                 setTimeout(function() {
-                    
             // MAJ COORDONNEES
-                    
                     monObjet.haut = $('#monPersonnage').position().top;
                     monObjet.droite = $('#monPersonnage').position().left + $('#monPersonnage').width();
                     monObjet.bas = $('#monPersonnage').position().top + $('#monPersonnage').height();
                     monObjet.gauche = $('#monPersonnage').position().left;
-                    
             // VICTOIRE JOUEUR
-                    
                     if(monObjet.bas <= 100 && monObjet.gauche <= 250){
                         poursuivre = false;
                         winner();
                     };
-                    
             // VERIFIE SI DANS LE JEU
-                    
                     var dansLeJeu = airDeJeux.dansLeJeu(monObjet);
-                    
             // VERIFIE SI DANS UNE ECHELLE
-                    
                     var dansEchelle = dansUneEchelle(monObjet);
-                    
             // VERIFIE SI DANS UN TROU
-                    
                     dansUnTrou(monObjet);
-                    
             // DEPLACEMENTS
-                    
                     if (monObjet.orientation == 'frameDepart') {
                         monObjet.vitesseDeplacementHorizontal = 0;
                         monObjet.vitesseDeplacementVertical = 0;
                     };
-                    
                     if(monObjet.orientation == 'frameHaut') {
                         monObjet.vitesseDeplacementHorizontal = 0;
                         if(dansLeJeu && dansEchelle){
@@ -639,7 +501,6 @@ $(document).ready(function() {
                             monObjet.vitesseDeplacementVertical = 0;
                         };
                     };
-                    
                     if(monObjet.orientation == 'frameDroite') {
                         if(dansLeJeu && !dansEchelle){
                             monObjet.vitesseDeplacementHorizontal = 7;
@@ -648,7 +509,6 @@ $(document).ready(function() {
                         };
                         monObjet.vitesseDeplacementVertical = 0;
                     };
-                    
                     if(monObjet.orientation == 'frameBas') {
                         monObjet.vitesseDeplacementHorizontal = 0;
                         if(dansLeJeu && dansEchelle){
@@ -657,7 +517,6 @@ $(document).ready(function() {
                             monObjet.vitesseDeplacementVertical = 0;
                         };
                     };
-                    
                     if(monObjet.orientation == 'frameGauche') {
                         if(dansLeJeu && !dansEchelle){
                             monObjet.vitesseDeplacementHorizontal = -7;
@@ -666,37 +525,27 @@ $(document).ready(function() {
                         };
                         monObjet.vitesseDeplacementVertical = 0;
                     };
-                    
             // MOUVEMENTS JOUEUR
-                    
                     $('#monPersonnage').css({   width: monObjet[monObjet.orientation].containerLargeur[i] + 'px',
                                                 height: monObjet[monObjet.orientation].containerHauteur[i] + 'px',
                                                 left: monObjet.gauche + monObjet.vitesseDeplacementHorizontal + 'px',
                                                 top: monObjet.haut + monObjet.vitesseDeplacementVertical + 'px' });
-                    
             // MOUVEMENTS IMAGE
-                    
                     $('#imagePersonnage').css({ top: monObjet[monObjet.orientation].imageHauteur[i] + 'px',
                                                 left: monObjet[monObjet.orientation].imageLargeur[i] + 'px' });
                     i++; // maj compteur frames
-                    
                     if(i == monObjet[monObjet.orientation].containerLargeur.length) {
                         i = 0; // boucle compteur frames
                     };
-                    
             // BOUCLE ANIMATION
-                    
                     if(poursuivre){
                         window.requestAnimationFrame(function() {
                             monAnimation(monObjet);
                         });
                     };
-                    
                 }, 1000 / framesParSeconde); // fin setTimeout
             };
-            
         // LANCEMENT PREMIERE ANIMATION
-            
             monAnimation(monObjet);
             return this;
         },
@@ -706,9 +555,7 @@ $(document).ready(function() {
             var monPersonnage = this;
             var dansLeJeu = airDeJeux.dansLeJeu(this); // vérifie si dans le jeu
             var dansEchelle = dansUneEchelle(this); // vérifie si dans une échelle
-            
     // EMPECHE SAUT LORSQUON MONTE UNE ECHELLE ET STOP LE SAUT SI ON SORT DU JEU
-            
             if(!dansEchelle){
                 $('#monPersonnage').animate({ top: maxSaut }, 500, function(){ // le personnage monte
                     $('#monPersonnage').animate({ top: minSaut }, 500, function() { // après être monté, il redescend
@@ -720,7 +567,6 @@ $(document).ready(function() {
             };
         }
     };
-    
     function deplacementPersoOn() {
         if(victoire == false){
             if(lancementAnimation){
@@ -730,9 +576,7 @@ $(document).ready(function() {
             };
         };
     };
-    
 // DETECTIONS TOUCHES USER
-    
     $(window).keydown(function(event) {
         var codeTouche = event.which || event.keyCode;          // compatibilité
         switch(codeTouche) {
@@ -769,16 +613,12 @@ $(document).ready(function() {
                 break;
         };
     });
-    
 // ARRET DEPLACEMENT
-    
     function deplacementPersoOff() {
         poursuivre = false;                                  // stop le déplacement
         personnageJoueur.deplacer();                         // lance le deplacement
     };
-    
 // DETECTION UP-TOUCHES USER
-    
     $(window).keyup(function(event) {
         var codeTouche = event.which || event.keyCode;
         switch(codeTouche) {
@@ -795,18 +635,9 @@ $(document).ready(function() {
         };
         lancementAnimation = true;                           // permet de relancer l'animationFrame
     });
-    
-/*    window.document.querySelector('#controlsSons').click(function(){
-        console.log(window.document.querySelector('#controlsSons').src())
-        if(window.document.querySelector('#controlsSons').src()== 'img/lecture.png'){
-            alert('coucou')
-        }
-    });*/
-    
 // INITIALISATION DU JEU
-    
     $('#start').click(function(){
-        musique.jeu.play()
+        musique.jeu.play();
         $('#messageAccueil').addClass('hidden');
         $('#reglesJeu').removeClass('hidden');
         personnageJoueur.deplacer(personnageJoueur.orientation);    // création personnage
