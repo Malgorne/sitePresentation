@@ -1,24 +1,19 @@
 
 $(document).ready(function(){
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-
-var socket = io('/ioJeuMulti');
-    
+    var socket = io('/ioJeuMulti');
 // On recrée la variable user récupérée chez jade
     var user = {
         nom: nomUser
     };
-    
     var ownPerso;
     var scoreJoueur = {};
     var partie;
     var start;
-    
     var musique = {
         jeu: document.querySelector('#musiqueJeu'),
         victoire: document.querySelector('#musiqueVictoire')
     };
-    
     var listeSpritesPerso = [
             'Broly',
             'Bubu',
@@ -27,7 +22,6 @@ var socket = io('/ioJeuMulti');
             'Sangoku',
             'Vegeta'
         ];
-    
     var positionsSprites = {
         Broly: {
             initiale: {
@@ -138,7 +132,6 @@ var socket = io('/ioJeuMulti');
             }
         }
     };
-    
     socket.emit('connectionUser', {user: user});
 // Rejoindre partie
     socket.on('listeParties', function(listeParties){
@@ -161,13 +154,11 @@ var socket = io('/ioJeuMulti');
             document.getElementById(partie).remove();
         };
     });
-    
     socket.on('enAttente', function(data){
     // met a jour la partie à chaque nouveau joueur qui rejoind la partie
         partie = data.partie;
         room = partie.roomName;
     });
-
     socket.on('jouer', function(data){
         var listePersos = data.listeJoueurs;
     // au lancement de la partie, on reçoit un array et on créée les joueurs avec
@@ -226,13 +217,11 @@ var socket = io('/ioJeuMulti');
             };
         };
     });
-    
     socket.on('scoreJoueurs', function(data){
         var scoreAutreJoueur = data.scoreJoueurs;
     // met à jour les scores des autres joueurs
         $('#scoreJoueur' + scoreAutreJoueur.nom).css({height: scoreAutreJoueur.height});
     });
-    
     var genererRochers = function(){
     // génère rochers de ownPerso
         var interval = Math.random()*(10 - 5) + 5;
@@ -253,7 +242,6 @@ var socket = io('/ioJeuMulti');
         if(start){
             if($('#rocher'+ownPerso.nom).length){
                 var positionRocher = parseFloat($('#rocher'+ownPerso.nom).css('top'));
-
                 if(positionRocher > 230){
                     if(ownPerso.status != 'kayoken'){
                         $('#scoreJoueur' + ownPerso.nom).css({height: '+=20'});
@@ -267,7 +255,6 @@ var socket = io('/ioJeuMulti');
             };
         };
     }, 50);
-    
 // gère la position des rochers des autres
     socket.on('rochers', function(data){
         if(ownPerso.status != 'defaite'){
@@ -286,7 +273,6 @@ var socket = io('/ioJeuMulti');
             }, 50);
         };
     });
-    
     socket.on('finJeu', function(data){
     // si ownPerso est un looser... bah c'est pas de chance
         if(ownPerso.nom == data.looser){
@@ -302,7 +288,6 @@ var socket = io('/ioJeuMulti');
             $('#parametragePartie').append(finDuJeu);
         };
     });
-    
     var creationJoueurs = function(unJoueur){
         var nomJoueur = unJoueur.nom;
     // on fabrique les div avec img
@@ -335,11 +320,9 @@ var socket = io('/ioJeuMulti');
             ownPerso.normal = function(){
             // gère limage et transmet la position
                 $('#img' + nomJoueur).css({top: positionsSprites[monSprite].initiale.top, left: positionsSprites[monSprite].initiale.left});
-                
                 this.top = positionsSprites[monSprite].initiale.top;
                 this.left = positionsSprites[monSprite].initiale.left;
                 this.status = 'initial';
-                
                 socket.emit('jouer', {joueur: ownPerso});
             };
             ownPerso.kayoken = function(){
@@ -347,7 +330,6 @@ var socket = io('/ioJeuMulti');
                 $('#img' + nomJoueur).css({top: positionsSprites[monSprite].kayoken.top, left: positionsSprites[monSprite].kayoken.left});
             // anime le kayoken et diminue l'énergie
                 energie.animation(ownPerso);
-                
                 this.top = positionsSprites[monSprite].kayoken.top;
                 this.left = positionsSprites[monSprite].kayoken.left;
                 this.status = 'kayoken';
@@ -391,7 +373,6 @@ var socket = io('/ioJeuMulti');
 // variables pour l'animation
     var poursuivre;
     var lancementAnimation = true;
-
     function kayokenOn() {
         if(lancementAnimation && ownPerso.status != 'defaite'){
             poursuivre = true;
@@ -399,7 +380,6 @@ var socket = io('/ioJeuMulti');
             lancementAnimation = false;
         };
     };
-
     $(window).keydown(function(event) {
     // compatibilité
         var codeTouche = event.which || event.keyCode;
@@ -416,13 +396,11 @@ var socket = io('/ioJeuMulti');
         };
         lancementAnimation = true;                           // permet de relancer le kayoken
     });
-    
     function kayokenOff() {
         poursuivre = false;
     // on remet à l'état normal
         ownPerso.normal();
     };
-    
     $(window).keyup(function(event){
     // compatibilité
         var codeTouche = event.wich || event.keyCode;
@@ -441,7 +419,6 @@ var socket = io('/ioJeuMulti');
                 break;
         };
     });
-    
     var energie = {
         animation: function(unPersonnage){
             var monObjet = this;
@@ -472,7 +449,6 @@ var socket = io('/ioJeuMulti');
             return this;
         }
     };
-    
 // fonction de base pour CREER une partie
     $('#boutonCreer').click(function(){
         $('#acceuilJeuMulti').remove();
@@ -547,31 +523,25 @@ var socket = io('/ioJeuMulti');
                            '<p>Nombre de joueurs attendus: ' + partieArejoindre.nbrJoueurs + '</p>' +
                            '<p>Nombre de joueurs connectés: ' + partieArejoindre.listeJoueurs.length + '</p>');
         $('#partiesEnAttente').append(nouvelleDiv);
-        
         var boutonRejoindre = document.createElement('p');
         $(boutonRejoindre).addClass('btn jaune col-xs-12').html('Rejoindre cette partie!');
         $(nouvelleDiv).append(boutonRejoindre);
-        
         $(boutonRejoindre).click(function(){
             $('#acceuilJeuMulti').remove();
         // on choisi son perso
             var choixPersonnage = document.createElement('div');
             $(choixPersonnage).attr('id', 'choixPersonnage');
             $('#parametragePartie').append(choixPersonnage);
-            
             var choixPersonnageUl = document.createElement('ul');
             $(choixPersonnageUl).attr('id', 'choixPersonnageUl');
             $('#choixPersonnage').append(choixPersonnageUl);
-            
             for(var k = 0; listeSpritesPerso[k]; k++){
                 var nouveauLi = document.createElement('li');
                 $(nouveauLi).attr('id', 'li'+k).addClass('liChoixPerso');
                 $('#choixPersonnageUl').append(nouveauLi);
-
                 var nouvelleImage = document.createElement('img');
                 $(nouvelleImage).attr('src', '../images/jeu2/choix/tete' + listeSpritesPerso[k] + '.png').attr('title', listeSpritesPerso[k]).attr('id', listeSpritesPerso[k]);
                 $(nouveauLi).append(nouvelleImage);
-
                 $(nouvelleImage).click(function(event){
                 // une fois choisi, on crée le personnage
                     imageJoueur = $(this).attr('id');
@@ -584,7 +554,6 @@ var socket = io('/ioJeuMulti');
                     var videoAttente = document.createElement('iframe');
                     $(videoAttente).attr({id: 'videoAttente', src: "https://www.youtube.com/embed/o_2Hku874lc?list=PLkonQJrH-v6wo_MnR6BG7oc42OmBqTHhF", frameborder: 0, allowfullscreen: true}).css({width: 560, height: 315});
                     $('#parametragePartie').append(videoAttente);
-                    
                     var informationAttente = document.createElement('p');
                     $(informationAttente).attr({id: 'informationAttente'}).css({width: 560, margin: 'auto', color: 'red', fontSize: '2em'}).html('En attendant les autres joueurs, nous vous proposons une petite vidéo simpas!');
                     $('#parametragePartie').append(informationAttente);
@@ -594,7 +563,6 @@ var socket = io('/ioJeuMulti');
             monCarroussel();
         });
     };
-    
     var monCarroussel = function(){
         var $carrousel = $('#choixPersonnage');
         var $img = $('#choixPersonnage img');

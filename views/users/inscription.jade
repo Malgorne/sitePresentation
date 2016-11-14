@@ -7,15 +7,15 @@ block content
             |         
             form(method='post', action='/users/traitementInscription')
               .form-group
-                if data
-                    label(for='nom') Votre nom: 
-                    input.form-control(type='text', name='nom' value='#{data.nom}')
+                if user
+                    label(for='pseudo') Votre pseudo: 
+                    input.form-control(type='text', name='pseudo' value='#{data.pseudo}')
                     |    
                     label(for='mail') Votre mail: 
                     input.form-control(type='email', name='mail' value='#{data.mail}')
                 else
-                    label(for='nom') Votre nom: 
-                    input.form-control(type='text', name='nom')
+                    label(for='pseudo') Votre pseudo: 
+                    input.form-control(type='text', name='pseudo')
                     |    
                     label(for='mail') Votre mail: 
                     input.form-control(type='email', name='mail')

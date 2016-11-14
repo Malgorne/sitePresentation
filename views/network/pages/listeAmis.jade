@@ -1,0 +1,83 @@
+extends ../layoutNetwork
+
+block contentNetwork
+    .row
+        #divPhotoProfil.col-xs-12.col-md-4.bleu
+                    .row
+                        #imgProfil
+                            if(profil.photoProfil)
+                                img(src="../../#{profil.photoProfil}", title="#{profil.pseudo}")
+                            else
+                                img(src='../../images/uploads/photoProfil/photoProfilDefault.jpg', title="Votre photo")
+                    #presentationMurUser.row.text-left
+                        br
+                        p #{profil.pseudo}
+                        if(profil.description && profil.description.nom)
+                            p Nom: #{profil.description.nom}
+                        if(profil.description && profil.description.prenom)
+                            p Prénom: #{profil.description.prenom}
+                        if(profil.description && profil.description.age)
+                            p Date de naissance: #{moment(profil.description.age).format("DD-MM-YYYY")}
+                        if(profil.coordonnees && profil.coordonnees.adresse && profil.coordonnees.adresse.adresseNumber)
+                            p Adresse:
+                            p #{profil.coordonnees.adresse.adresseNumber} #{profil.coordonnees.adresse.adresseRue}
+                            p #{profil.coordonnees.adresse.adresseCP} #{profil.coordonnees.adresse.adresseVille}
+                        if(profil.coordonnees && profil.coordonnees.telephone)
+                            p Téléphone: #{profil.coordonnees.telephone}
+                        p Création du compte: #{moment(profil.dateCreation).format("DD-MM-YYYY")}
+                        p Dernière connection: #{moment(profil.derniereConnection).format("DD-MM-YYYY")}
+                        p Nombre d'amis: 
+                              a(href='/network/friends/#{profil.id}', title="Voir les amis de #{profil.pseudo}") #{profil.listeAmis.length}
+                        p Nombre de posts: #{profil.listePosts.length}
+                        if(profil.description && profil.description.presentation)
+                            p Présentation:
+                            p.text-justify #{profil.description.presentation}
+        #divListeAmis.col-xs-12.col-md-4.jaune
+                    h4 LISTE DES AMIS
+                    ul
+                        if(profil.listeAmis.length)
+                            each ami in profil.listeAmis
+                                li.bleu.text-left(id='li-#{ami._id}')
+                                    a(href='/network/mur/#{ami._id}', title="profil de #{ami.pseudo}")
+                                        if(ami.photoPofil)
+                                            img.miniaturesPhotoprofils(src="../../#{ami.photoProfil}", title="#{ami.pseudo}")
+                                        else
+                                            img.miniaturesPhotoprofils(src='../../images/uploads/photoProfil/photoProfilDefault.jpg', title="Votre photo")
+                                        span #{ami.pseudo}
+                        else
+                            li.bleu Tu n'as pas encore d'amis!?!
+        .row
+            form#formSearchFriends.col-xs-12.col-md-offset-2.col-md-8(action="#", method="POST")
+                input#inputSearchFriends.col-xs-9(type="text" name="searchFriends", placeholder='Recherche par nom, prénom ou pseudo')
+                input.col-xs-3(type="submit", value="rechercher")
+        .row
+            h2.col-xs-12.col-md-offset-2.col-md-8 Les amis de #{profil.pseudo}
+        .row
+            ul#ulProfils.col-xs-12.col-md-offset-2.col-md-8.text-left
+                each ami, index in profil.listeAmis
+                    li.liNewFriends.col-xs-12.col-md-4
+                        a(id='profil-#{ami._id}', href='/network/mur/#{ami._id}', title='#{ami.pseudo}')
+                            if(ami.photoProfil)
+                                img.imgNewFriends(src='../../#{ami.photoProfil}', title='#{ami.pseudo}', alt='#{ami.pseudo}')
+                            else
+                                img.imgNewFriends(src='../../images/uploads/photoProfil/photoProfilDefault.jpg', title='#{ami.pseudo}', alt='#{ami.pseudo}')
+                            p !{ami.pseudo}
+                                if(profil._id == user.id || user.id == ami._id)
+                                    a.supFriend(id="linkProfil-#{ami._id}", href="#linkProfil-#{ami._id}", title="ajouter #{ami.pseudo}") Supprimer
+    if(user.photoProfil)
+        script.
+            var user = {
+                id: '!{user.id}',
+                pseudo: '!{user.pseudo}',
+                photoProfil: '!{user.photoProfil}'
+            };
+    else
+        script.
+            var user = {
+                id: '!{user.id}',
+                pseudo: '!{user.pseudo}'
+            };
+    script(type='text/javascript', src="/socket.io/socket.io.js")
+    script(type='text/javascript') var socket = io('http://localhost:3001')
+    script(type='text/javascript', src='../../javascripts/newFriends.js')
+    include ../../footer.jade

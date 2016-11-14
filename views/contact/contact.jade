@@ -13,7 +13,7 @@ block content
 
                 p Appelle moi, envoie moi un mail ou twitte moi. Je serais ravis d'échanger avec toi sur mon avenir, l'informatique ou tout autre sujet dans tes locaux ou à la terrasse d'un café.
                 
-            if user == 'admin'
+            if user && (user.droits == 'god' || user.droits == 'demiGod')
             
                 .row
                     #contactezMoi

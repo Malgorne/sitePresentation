@@ -1,28 +1,26 @@
-<table>
-    <th>
-        <td>Nom</td>
-        <td>Date de création</td>
-        <td>Dernière connection</td>
-        <td>Adresse Mail</td>
-        <td>Droits</td>
-    </th>
-    <a href='#'>
-        <tr>
-            <td>#{user.nom}</td>
-            <td>#{user.dateCreation}</td>
-            <td>#{user.derniereConnection}</td>
-            <td>#{user.mail}</td>
-            <td>#{user.droits}</td>
-        </tr>
-    </a>
-</table>
 
+<!-- Textarea sexy pour poster sur les murs -->    
 
-<form action="#" methode="#">
-    <label for="droitsUser"></label><br>
-    <select name="droitsUser" id="droitsUser">
-        <option value="user">User</option>
-        <option value="demiGod">Demi-Dieu</option>
-        <option value="god">Dieu</option>
-    </select>
+<form action="network/mur" method="POST">
+
+    <textarea name="area3" style="width: 300px; height: 100px;">
+        At w3schools.com you will learn how to make a website. We offer free tutorials in all web development technologies. 
+    </textarea>
+    <input type="submit" value="VALIDER"/>
+
 </form>
+<script src="http://js.nicedit.com/nicEdit-latest.js" type="text/javascript"></script>
+<script type="text/javascript">bkLib.onDomLoaded(nicEditors.allTextAreas);</script>
+
+    form(action="network/mur/newArticle", method="POST")
+        textarea(name="area3", style="width: 300px; height: 100px;") At w3schools.com you will learn how to make a website. We offer free tutorials in all web development technologies.
+        input(type="submit", value="VALIDER")
+    script(type='text/javascript', src='http://js.nicedit.com/nicEdit-latest.js')
+    script(type='text/javascript')
+        bkLib.onDomLoaded(nicEditors.allTextAreas);
+
+    <!-- envoyé en websocket -->
+    <!-- sauvegardé en bdd du détenteur du profil -->
+    <!-- sauvegardé en bdd de l'émetteur du message -->
+    <!-- maj stats internes du site -->
+    <!-- affiché sur le profile courant -->

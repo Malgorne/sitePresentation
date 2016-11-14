@@ -49,6 +49,10 @@ a:hover{
     width: 80%; margin: auto; text-align: center;
 }
 
+li{
+    list-style: none;
+}
+
 h1{
     font-family: 'gooddogregular',  Arial, sans-serif; font-size: 5em; color: rgb(155, 36, 57);
     text-align:left;
@@ -100,7 +104,7 @@ header{
 
 /* BODY */
 
-    /* ACCUEIL */
+    /* ACCUEIL ET MENU */
 
 #monPortrait{
     width: 350px; height: 350px; border-radius: 350px; margin: 90px 0 90px 0;
@@ -170,17 +174,23 @@ header{
 
     /* RESUME */
 
+/* MENU LATERAL DROITE ET GAUCHE */
+
 .menuIntern{
     position: fixed; top: 200px; right: 5%;
 }
 
-.menuIntern>ul>li{
+.menuNetwork{
+    position: fixed; top: 200px; left: 5%;
+}
+
+.menuIntern>ul>li, .menuNetwork>ul>li{
     width: 135px; height: 135px; border-radius: 135px; line-height: 135px; margin: 0 0 5px 0;
     text-align: center; font-size: 1.7em;
     list-style: none;
 }
 
-.menuIntern>ul>li>a{
+.menuIntern>ul>li>a, .menuNetwork>ul>li>a{
     color: white;
     text-transform: uppercase;
 }
@@ -270,6 +280,226 @@ article>div>a>p{
     width: 135px; height: 135px; border-radius: 135px; line-height: 135px;
 }
 
+/* OWN MUR */
+
+#divPhotoProfil{
+    position: absolute; width: 270px; top: 260px; left: 10px;
+    border: solid 1px white; border-radius: 10px 10px 0 0;
+    z-index: 1;
+}
+
+#divListeAmis{
+    position: absolute; width: 250px; top: 250px; right: 10px; padding: 0;
+    border: solid 1px white; border-radius: 10px 10px 0 0;
+}
+
+#divListeAmis>h4{
+    padding: 10px 0 10px 0;
+    font-size: 2em;
+}
+
+#divListeAmis>ul{
+    margin: 0;
+}
+
+#divListeAmis>ul>li{
+    height: 50px; line-height: 50px; width: 250px;
+    list-style-type: none; border: solid 1px white;
+}
+
+#imgProfil{
+    position: relative; width: 250px; height: 250px; margin: 10px;
+    overflow: hidden;
+}
+
+.formArticles{
+    margin-top: 20px; margin-bottom: 20px;
+}
+
+.formArticles>form>input{
+    margin-top: 0 5px 0 5px;
+}
+
+#presentationMurUser{
+    padding: 10px;
+}
+
+.formArticles>form{
+    border-radius: 10px 10px 0 0;
+    background-color: white;
+}
+
+.formArticles>form>label{
+    padding: 5px 0 5px 10px;
+}
+
+.unArticle{
+    background-color: white;
+    padding: 20px;
+    padding-bottom: 10px;
+    border-radius: 10px;
+    border: solid 2px rgb(208,217,227);
+}
+
+.auteurArticle, .contenuArticle{
+    background-color: rgb(208,217,227);
+    border-bottom: 1px solid white;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.dataCreaArticle{
+    font-size: 12px;
+    margin-bottom: 0;
+}
+
+.auteurArticle{
+    font-size: 20px;
+    border-radius: 10px 10px 0 0;
+}
+
+.spanArticle{
+    width: 200px;
+    background-color: rgb(208,217,227);
+    border-radius: 0 0 5px 5px;
+}
+
+.editArticle, .supArticle, .repArticle{
+    display: inline-block;
+    margin-left: 10px;
+}
+
+/* NEW FRIENDS */
+
+.imgNewFriends{
+    list-style: none;
+    display: inline-block;
+    width: 200px;
+    height: 200px;
+    margin: 10px 0px 10px 0 ;
+    border-radius: 5px;
+}
+
+.liNewFriends{
+    list-style: none;
+    background-color: white;
+    border: 2px solid rgb(208,217,227);
+    border-radius: 10px;
+    margin-top: 10px;
+    background-color: rgb(205, 198, 40);
+}
+
+#formSearchFriends{
+    margin-top: 10px;
+}
+
+.supFriend, .addFriend, .waitingFriend{
+    float: right;
+}
+
+#ulChoixProfil, #ulChoixDest{
+    position: absolute;
+    background-color: white;
+    top: 85px;
+    left: 18%;
+    z-index: 1;
+    padding: 0;
+    margin-left: 15%;
+}
+
+#ulChoixProfil{
+    top: 280px;
+    left: 9%;
+}
+
+
+.liChoixProfil, .liChoixDest{
+    position: relative;
+    border: 2px solid rgb(208,217,227);
+}
+
+.miniaturesPhotoprofils{
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    margin-right: 50px;
+    font-size: 10px;
+}
+
+/* MESSAGERIE */
+
+.hidden{
+    display: none;
+}
+
+/* TCHAT */
+
+#divTchat{
+    margin-top: 25px;
+    height: 500px;
+}
+
+#contourTchat{
+    background-color: rgb(97, 208, 212);
+}
+
+#mainTchat{
+    height: 500px;
+    background-color: rgb(97, 208, 212);
+}
+
+#listeDiscutions{
+    margin-top: 15px;
+}
+
+.affMessages{
+    margin-top: 15px;
+    height: 445px;
+    background-color: white;
+}
+
+#affichageRight{
+    background-color: rgb(97, 208, 212);
+}
+
+.liRight{
+    background-color: rgb(97, 208, 212);
+}
+
+#listeSalons, .listeUsersMp{
+    margin-top: 15px;
+}
+
+.listeUsersMp{
+    height: 120px;
+}
+
+#listeUsers{
+    height: 345px;
+}
+
+#listeSalons, #listeUsers, .listeUsersMp{
+    overflow-y: auto;
+    background-color: rgb(97, 208, 212);
+}
+
+.spanInviter{
+    font-weight: bold;
+    color: green;
+    position:relative;
+    right: -35px;
+}
+
+.spanCloseOnglet{
+    font-weight: bold;
+    color: red;
+    margin-left: 10px;
+}
+
+.spanAddUser{
+    font-weight: bold;
+    color: green;
+}
 
 /* FOOTER */
 
@@ -289,4 +519,10 @@ footer p{
 
 footer img{
     width: 40px; height: 40px; border-radius: 40px;
+}
+.bad{
+    background-color: red;
+}
+.good{
+    background-color: green;
 }

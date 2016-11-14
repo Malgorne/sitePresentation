@@ -32,7 +32,6 @@ server.on('listening', onListening);
 var io = require('../io');
 io.attach(server);
 
-
 /**
  * Normalize a port into a number, string, or false.
  */

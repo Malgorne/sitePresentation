@@ -1,0 +1,53 @@
+extends ../layoutNetwork
+
+block contentNetwork
+    .row
+        nav.menuIntern
+            ul
+                li.rose
+                    a(href='/users/edition', title='Edite ton profil') Edition Profil
+                li.bleu
+                    a(href='/users/deconnection', title='Déconnecte toi') Deconnection
+                    
+                if user && (user.droits == 'god' || user.droits == 'demiGod')
+                    li.jaune
+                        a(href='/admin/listeUsers', title='Administration users') God's place
+                else
+                    li.jaune
+                        a(href='/users/suppression', title='Supprime ton profil') Suppression
+        nav.menuNetwork
+            ul
+                li.rose
+                    a(href='/network/messagerie/own', title='Check tes messages!') Messagerie
+                li.bleu
+                    a(href='/network/tchat', title="Let's Talk!") Tchat
+                li.jaune
+                    a(href='/network/forum', title='Forum') Forum
+    .row#divTchat
+        #contourTchat.col-xs-12.col-md-offset-2.col-md-8
+            ul#listeDiscutions.nav.nav-tabs
+                li.uneDiscution.active(role="presentation")
+                    a#roomCourante(href="#main-roomCourante") Général
+        #mainTchat.col-xs-12.col-md-offset-2.col-md-6
+            .affMessages(id="main-roomCourante")
+            form#formTchat(action="/envoyer/message", method="POST", required)
+                input#inputTchat.col-md-10(type='text', placeholder="Ecrivez votre message!")
+                input#submitTchat.col-md-2(type='submit', value="ENVOYER")
+        #affichageRight.col-xs-12.col-md-2
+            ul#listeSalons.row
+                li.liRight.col-xs-11.text-left Liste des salons :
+            ul#listeUsers.row
+                li.liRight.col-xs-11.text-left Participants au salon :
+                
+            
+    script.
+        var user = {
+            id: '!{user.id}',
+            pseudo: '!{user.pseudo}'
+        };
+    script(type='text/javascript', src='../../javascripts/nicEdit.js')
+    script(type='text/javascript') bkLib.onDomLoaded(nicEditors.allTextAreas);
+    script(type='text/javascript', src="/socket.io/socket.io.js")
+    script(type='text/javascript') var socket = io('http://localhost:3001')
+    script(type='text/javascript', src='../../javascripts/tchat.js')
+    include ../../footer.jade

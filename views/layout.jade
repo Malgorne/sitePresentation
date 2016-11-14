@@ -1,9 +1,9 @@
 doctype html
-html(lang='')
+html(lang='',ng-app='fritzSolutions')
     head
         meta(charset='UTF-8')
         title Benjamin FRITZ, Développeur Intégrateur Web
-        if administrateur
+        if user && (user.droits == 'god' || user.droits == 'demiGod' || titre == 'network')
             link(rel='stylesheet', type='text/css', href='../../stylesheets/bootstrap.min.css')
             link(rel='stylesheet', type='text/css', href='../../stylesheets/style.css')
             script(type='text/javascript', src='../../javascripts/jquery-1.12.3.js')
@@ -43,11 +43,11 @@ html(lang='')
                             a(href='/contact/contact', title='Contactez-moi!') Contact
                         if user
                             li
-                                a(href='/users/profil', title='Gestion profil') Profil
+                                a(href='/users/profil', title='Gestion profil') Network
                         else
                             li
                                 a(href='/users/connection', title='Connection') Connection
                 if message
                     .row
-                        p.bulle.col-md-offset-3.col-md-6.text-center= message
+                        p.bulle.col-md-offset-2.col-md-8.text-center= message
 block content

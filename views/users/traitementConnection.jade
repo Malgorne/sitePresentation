@@ -9,6 +9,6 @@ block content
             br
     .row
         .col-xs-4.col-xs-offset-4
-            if user == 'admin'
+            if user.droits == 'god' || user.droits == 'demiGod'
                 a.bulleRouge.jaune.col-xs-12.col-md-6(href='/contact/creation') M'écrire!
             a.bulleRouge.bleu.col-xs-12.col-md-6.col-md-offset-4(href='/jeuMulti/listeParties') Jeu multi

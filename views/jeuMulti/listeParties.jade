@@ -24,7 +24,8 @@ block content
             audio#musiqueVictoire(src='../sons/victoireDB.mp3') Veuillez mettre à jour votre navigateur.
     if user
         script.
-            var nomUser = '!{user.nom}';
+            var nomUser = '!{user.pseudo}';
     script(type='text/javascript', src="/socket.io/socket.io.js")
+    script(type='text/javascript') var socket = io('http://localhost:3001')
     script(type='text/javascript', src='../javascripts/jeuMulti.js')
 

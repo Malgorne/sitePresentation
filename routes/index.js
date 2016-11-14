@@ -3,18 +3,8 @@ var router = express.Router();
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var i =0;
 
-// gestion des sessions
-router.use(cookieParser())
-    .use(session({
-        secret: 'unTrucSecret',
-        saveUninitialized: false,
-        resave: false
-    }))
-    .use(bodyParser.urlencoded({
-        extended: false
-    }));
+var i = 0;
 
 router.get('/jeuMulti/:pageDemandee', function(req, res, next){
     var pageDemandee = req.params.pageDemandee;
@@ -27,7 +17,7 @@ router.get('/jeuMulti/:pageDemandee', function(req, res, next){
         }
         res.render('jeuMulti/' + pageDemandee, {user: user, jeuMulti: jeuMulti});
     } else {
-        res.render('users/connection', {title: 'Connection', monH1: 'Connection', message: 'Vous devez être connecté pour pouvoir jouer!'});
+        res.render('users/connection', {title: 'Connection', message: 'Vous devez être connecté pour pouvoir jouer!'});
     };
 });
 
@@ -35,6 +25,7 @@ router.get('/:pageDemandee', function(req, res, next){
     var pageDemandee = req.params.pageDemandee;
     var message;
     var user;
+    var userSession = req.session;
     if(req.session.user){
         user = req.session.user;
         if(i<1){
@@ -52,7 +43,7 @@ router.get('/', function(req, res, next) {
     if(req.session.user){
         user = req.session.user;
         if(i<1){
-            message = 'Content de te voir ' + user.nom + '!';
+            message = 'Content de te voir ' + user.pseudo + '!';
             i++;
         };
     };

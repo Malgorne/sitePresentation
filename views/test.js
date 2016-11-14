@@ -1,101 +1,120 @@
 
-const express = require('express');
-const session = require('express-session');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const db = require('./exercice_16_db');
+// selecteur
 
-var app = express();
-var portEcoute = 1234;
+{articlesProfil: {$elemMatch: {id: reponse.articleId}}}
 
-app.use(cookieParser());
+// on set la reponse de larticle poste
 
-app.use(session({
-    secret: 'trucSecret',
-    saveUninitialized: false,
-    resave: false
-}));
+{$set:{ "articlesProfil.$.reponses": reponse.contenu }}
 
-app.use('/img', express.static(__dirname + '/views/img'))
-    .use('/css', express.static(__dirname + '/views/css'))
-    .use(bodyParser.urlencoded({
-    extended: false
-}));
+// on push la reponse dans reponses
 
-app.engine('jade', require('jade').__express)
-    .set('view engine', 'jade')
-    .set('views', 'views/html');
+{$push: { "reponses": reponse }}
 
-app.post('/traitement', function(req, res){
-    if(req.body.mdp === req.body.confirmMdp){
-        req.session.user = {
-            nom: req.body.nom,
-            prenom: req.body.prenom,
-            nbrConnections: 0
-        };
-        
-        req.session.save();
-        
-        var collection = db.get().collection('users');
-        
-        collection.insert({ nom: req.body.nom,
-                        prenom: req.body.prenom,
-                        mdp: req.body.mdp
-                        },
-                        function(err, result){
-                            collection.find().toArray(function(err, data){
-                            var i = data.length-1;
-                            res.render('traitement.jade', {nomPage: 'ExpressJS/traitement', monH1: 'traitement formulaire', nom: data[i].nom, prenom: data[i].prenom, mdp: data[i].mdp});
-                            });
-                        }
-                    );
-    } else {
-        res.redirect('/formulaire');
-    };
-});
+// resultat
 
-function restriction(req, res, next){
-    if(req.session.user || req.url === '/formulaire'){
-        if(req.session.user){
-            req.session.user.nbrConnections +=1;
-        };
-        next();
-    } else {
-        res.redirect('/formulaire')
-    };
-};
+{$push:{ "articlesProfil.$.reponses": reponse }}
 
-app.use(restriction);
 
-app.get('/:pageDemandee', function(req, res){
-    var pageDemandee = req.params.pageDemandee;
-    if(pageDemandee === 'formulaire' && req.session.user){
-        res.send('vous êtes déjà connecté!');
-    } else {
-        var monH1 = pageDemandee;
-        if(req.session.user){
-            monH1 += ' - Nombre de connections: ' + req.session.user.nbrConnections;
-        };
-        res.render(pageDemandee + '.jade', {nomPage: 'ExpressJS/' + pageDemandee, monH1: monH1, mdp: req.body.mdp});
-    };
-});
 
-app.use(function(req, res, next) {
-  res.status(404).send('Sorry cant find that!');
-});
+db.users.ensureIndex({pseudo : "text"})
 
-app.use(function(err, req, res, next) {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
+db.users.runCommand("text", {search:"za"})
 
-db.connect('mongodb://localhost:27017/blog', function(err){
-    if(err){
-        console.log('Impossible de se connecter à la base de données.');
-        process.exit(1);
-    } else {
-        app.listen(portEcoute, function(){
-            console.log('Le serveur est disponible sur le port 1234');
-        });
-    };
-});
+
+db.users.find( { pseudo: {$text: { $search: "Coffee", $caseSensitive: true, $diacriticSensitive: false }} } )
+db.articles.createIndex( { subject: "text" } )
+
+db.inventory.createIndex( { "stock.size": 1, "stock.quantity": 1 } )
+
+
+db.users.createIndex({pseudo: "text"});
+db.users.createIndex({nom: "text"});
+db.users.createIndex({prenom: "text"});
+
+db.users.createIndex({"pseudo": "text", "description.nom": "text", "description.prenom": "text"});
+
+db.users.find( {$or: [{$text: { $search: "z", $caseSensitive: false, $diacriticSensitive: false }}]} );
+
+db.users.update({demandesAmis: {$elemMatch: {"demandeur.id": new ObjectID(otherUserId)}}},
+                {$pull: {"demandeur.id": otherUserId}},
+                {multi: true},
+                function(err, result){
+    
+})
+
+{ $pull: { "demandesAmis": { id: new ObjectID(articleId)} }}
+
+{demandesAmis: {$elemMatch: {$and: [{"demandeur.id": "581cb1df50d7a3d0116456a8"}, {"userCible._id": ObjectId("581cb2411a77bc1912959bdf")}]}}}
+
+{ $elemMatch: { score: 8 , item: "B" } }
+db.users.update(
+    {demandesAmis: { $elemMatch: {id: Number(1478446643826)}}},
+    {$pull: {demandesAmis: { id: Number(1478446643826)}}},
+    {multi: true}
+);
+db.survey.update(
+  { },
+  { $pull: { results: { $elemMatch: { score: 8 , item: "B" } } } },
+  { multi: true }
+)
+
+db.users.find({demandesAmis: {$elemMatch: {$and: [{"demandeur.id": "581cb1df50d7a3d0116456a8"}, {"userCible._id": ObjectId("581cb2411a77bc1912959bdf")}]}}});
+
+
+{_id: new ObjectID(req.session.user.id)}, {$push: {listeAmis: result}}
+
+{ reponses: { $elemMatch: { id: Number(1478508714943)} } }
+
+[ Number(1478684231898) ]
+{$pullAll: {"listeMessages.$.id": [ Number(1478684231898) ]}}$or
+
+db.users.update({_id: ObjectId("58204d937b5fd59e1ee41f39")}, {$pull: {listeMessages: {$or: [{id: 1478684231898}]} }})
+
+
+db.users.update({_id: ObjectId("58204d937b5fd59e1ee41f39")}, {$pullAll: [{"listeMessages.$.id": Number(1478684231898)}]})
+
+db.articles.update({ "nouvelArticle.reponses": { $elemMatch: { id: Number(1478508714943)} } } ,{$pullAll: {"listeMessages.$.id": [ Number(1478684231898) ]}})
+
+db.users.updateOne({_id: ObjectId("58204d937b5fd59e1ee41f39")}, { $pull: { listeMessages: {id: Number(1478546125034)}}})
+
+{demandesAmis: { id: Number(1478545989747)}}}
+{_id: new ObjectID("58204d857b5fd59e1ee41f38")}
+ {$elemMatch: {id: Number(1478545989747)}}, {$set: { statut : "lu"}}
+
+idUser: ObjectId("58204d937b5fd59e1ee41f39")
+idMessage: 1478546125034
+
+db.users.findOne({$and: [{_id: ObjectId("58204d857b5fd59e1ee41f38")}, {listeMessages: {$elemMatch: {id: Number(1478545989747)}}}]})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

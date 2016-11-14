@@ -1,0 +1,27 @@
+extends ../layout
+
+block content
+    .row
+        h2.col-xs-offset-2.col-md-offset-4.col-md-4 Et si nous changions ta photo?!
+        #photoProfil.col-xs-12.col-md-offset-4.col-md-4
+        if(user && user.photoProfil)
+            br
+            img#imgPhotoProfil.col-xs-12.col-md-offset-4.col-md-4(src='../#{user.photoProfil}', title="#{user.pseudo}")
+            br
+        else
+            br
+            img#imgPhotoProfil.col-xs-12.col-md-offset-4.col-md-4(src='../images/uploads/photoProfil/photoProfilDefault.jpg', title="Votre photo")
+            br
+    .row.text-center
+        form(method='post', action='/users/editPhotoProfil', enctype='multipart/form-data',)
+            label(for='photoProfil')
+                input(type='file', name='photoProfil')
+            .row
+                .text-center
+                    br
+                    input#submitEditPhotoProfil.col-md-offset-4.col-md-4.btn.btn-success.btn-lg(type='submit', value='Changez moi ça!')
+    if(user && user.photoProfil)
+        .row.text-center
+            br
+            a.col-md-offset-4.col-md-4.btn.btn-success.btn-lg(href='/users/supressionPhotoProfil', title='supression') SUPRESSION
+    include ../footer.jade

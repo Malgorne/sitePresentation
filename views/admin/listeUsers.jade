@@ -8,18 +8,18 @@ block content
             if listeUsers
                 table.table
                     tr.row
-                        th.col-xs-2 Nom
+                        th.col-xs-2 Pseudo
                         th.col-xs-2 Date de création
                         th.col-xs-2 Dernière connection
                         th.col-xs-2 Adresse Mail
                         th.col-xs-2 Droits
-                    for user in listeUsers
+                    for userManaged in listeUsers
                         tr.row
                             td
-                                a(href='/admin/user/profil?nom=#{user.nom}') #{user.nom}
-                            td #{moment(user.dateCreation).format("DD-MM-YYYY")}
-                            td #{moment(user.derniereConnection).format("DD-MM-YYYY")}
-                            td #{user.mail}
-                            td #{user.droits}
+                                a(href='/admin/user/#{userManaged._id}') #{userManaged.pseudo}
+                            td #{moment(userManaged.dateCreation).format("DD-MM-YYYY  h:mm:ss a")}
+                            td #{moment(userManaged.derniereConnection).format("DD-MM-YYYY  h:mm:ss a")}
+                            td #{userManaged.mail}
+                            td #{userManaged.droits}
                 a.btn.rose.col-xs-12(href='/admin/suppressionInactifs') PURGER COMPTES INACTIFS
     include ../footer.jade

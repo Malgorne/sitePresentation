@@ -1,0 +1,90 @@
+extends ../layoutNetwork
+
+block contentNetwork
+    .row
+        nav.menuIntern
+            ul
+                li.rose
+                    a(href='/users/edition', title='Edite ton profil') Edition Profil
+                li.bleu
+                    a(href='/users/deconnection', title='Déconnecte toi') Deconnection
+                    
+                if user && (user.droits == 'god' || user.droits == 'demiGod')
+                    li.jaune
+                        a(href='/admin/listeUsers', title='Administration users') God's place
+                else
+                    li.jaune
+                        a(href='/users/suppression', title='Supprime ton profil') Suppression
+        nav.menuNetwork
+            ul
+                li.rose
+                    a(href='/network/messagerie/own', title='Liste de tes messages!') Messagerie
+                li.bleu
+                    a(href='/network/tchat', title="Let's Talk!") Tchat
+                li.jaune
+                    a(href='/network/forum', title='Forum') Forum
+        .row#lectureMessage
+            .col-xs-12.col-md-offset-2.col-md-8
+                br
+                p.text-left Message envoyé le #{moment(messageLu.date).format("DD-MM-YYYY")} .
+                h2 !{messageLu.titre}
+                if(messageLu.dataType == 'demandeAmis')
+                    if(user.id == messageLu.envoyeParId)
+                        p Vous avez demandé à 
+                            a(href="/network/mur/#{messageLu.recuParId}", title="voir le profil de #{messageLu.recuParPseudo}") !{messageLu.recuParPseudo}
+                            |  de devenir votre ami!
+                        if(messageLu.contenu.photoProfil)
+                            img(src="../../#{messageLu.contenu.photoProfil}", title="#{user.pseudo}")
+                        else
+                            img(src='../../images/uploads/photoProfil/photoProfilDefault.jpg', title="Votre photo")
+                        p
+                            a.col-xs-6.btn.btn-danger.btn-lg(href="/network/newFriends/annule-#{messageLu.recuParId}-#{messageLu.id}", title="annuler la demande") Annuler la demande
+                            a#supMessage.col-xs-6.btn.btn-danger.btn-lg(href="sup-#{user.id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="supprimer le message") Supprimer le message
+                    else
+                        if(messageLu.contenu.photoProfil)
+                            img(src="../../#{messageLu.contenu.photoProfil}", title="#{user.pseudo}")
+                        else
+                            img(src='../../images/uploads/photoProfil/photoProfilDefault.jpg', title="Votre photo")
+                        p 
+                            a(href="/network/mur/#{messageLu.envoyeParId}", title="voir le profil de #{messageLu.envoyeParPseudo}") !{messageLu.envoyeParPseudo}
+                            |  a demandé à être votre ami!
+                        p
+                            a.col-xs-6.btn.btn-success.btn-lg(href="/network/newFriends/accept-#{messageLu.envoyeParId}-#{messageLu.id}", title="accepter la demande") Accepter la demande
+                            a.col-xs-6.btn.btn-danger.btn-lg(href="/network/newFriends/refuse-#{messageLu.envoyeParId}-#{messageLu.id}", title="refuser la demande") Refuser la demande
+                else
+                    if(user.id == messageLu.envoyeParId)
+                        p Vous avez écrit à  
+                             a(href="/network/mur/#{messageLu.recuParId}", title="voir le profil de #{messageLu.recuParPseudo}") !{messageLu.recuParPseudo}
+                             |  :
+                        p !{messageLu.contenu}
+                    else
+                        p
+                            a(href="/network/mur/#{messageLu.envoyeParId}", title="voir le profil de #{messageLu.envoyeParPseudo}") !{messageLu.envoyeParPseudo} 
+                            | vous a écrit :
+                        p !{messageLu.contenu}
+                    p 
+                        a#repMessage.col-xs-6.btn.btn-success.btn-lg(href="rep-#{user.id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="répondre au message") Répondre au message
+                        a#supMessage.col-xs-6.btn.btn-danger.btn-lg(href="sup-#{user.id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="supprimer le message") Supprimer le message
+                    
+                p
+                    a.col-xs-12.btn.btn-warning.btn-lg(href="/network/messagerie/own", title="liste des messages") Liste des messages
+                
+    if(user.photoProfil)
+        script.
+            var user = {
+                id: '!{user.id}',
+                pseudo: '!{user.pseudo}',
+                photoProfil: '!{user.photoProfil}'
+            };
+    else
+        script.
+            var user = {
+                id: '!{user.id}',
+                pseudo: '!{user.pseudo}'
+            };
+    script(type='text/javascript', src='../../javascripts/nicEdit.js')
+    script(type='text/javascript') bkLib.onDomLoaded(nicEditors.allTextAreas);
+    script(type='text/javascript', src="/socket.io/socket.io.js")
+    script(type='text/javascript') var socket = io('http://localhost:3001')
+    script(type='text/javascript', src='../../javascripts/messagerie.js')
+    include ../../footer.jade

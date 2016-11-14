@@ -8,18 +8,20 @@ var db = require('./db');
 // gestion des sessions
 router.use(cookieParser())
     .use(session({
-        secret: 'unTrucSecret',
+        secret: 'mySecretCookie',
         saveUninitialized: false,
-        resave: false
+        resave: false,
+        cookie: {maxAge: 3600000}
     }))
     .use(bodyParser.urlencoded({
         extended: false
-    }));
+    })
+);
 
 function restriction(req, res, next){
     if(req.url == '/traitementCreation' || req.url == '/creation'){
         if(!req.session){
-            res.render('users/connection.jade', { title: 'Connection', monH1: 'Connection', message: 'Tu dois te connecter pour envoyer un message...'});
+            res.render('users/connection.jade', { title: 'Connection', message: 'Tu dois te connecter pour envoyer un message...'});
         };
     };
     next();
@@ -35,10 +37,10 @@ router.post('/traitementCreation', function(req, res, next){
     collection.findOne({titre:req.body.titre},
     function(err, result){
         if(result){
-            res.render('contact/creation.jade', {title: 'Nouveau message', monH1: data.titre, data: data, message: 'Ce titre est déjà pris, veuillez en saisir un autre.'});
+            res.render('contact/creation.jade', {title: 'Nouveau message', data: data, message: 'Ce titre est déjà pris, veuillez en saisir un autre.'});
         } else {
             if(err){
-                res.render('contact/creation.jade', {title: data.titre, message: 'Oops! Quelque chose s\'est mal passé! Merci de recommencer', monH1: data.titre + ' - Echec de la publication', user: user, data: data});
+                res.render('contact/creation.jade', {title: data.titre, message: 'Oops! Quelque chose s\'est mal passé! Merci de recommencer', user: user, data: data});
             } else {
                 collection.insert({
                                 idRedacteur: user.id,
@@ -48,12 +50,12 @@ router.post('/traitementCreation', function(req, res, next){
                             },
                     function(err, result){
                         if(err){
-                            res.render('contact/creation.jade', {title: data.titre, message: 'Oops! Quelque chose s\'est mal passsé! Merci de recommencer', monH1: data.titre + ' - Echec de la publication', user: user.nom, data: data});
+                            res.render('contact/creation.jade', {title: data.titre, message: 'Oops! Quelque chose s\'est mal passsé! Merci de recommencer', user: user.nom, data: data});
                         } else {
                             collection.find().toArray(
                                 function(err, data){
                                     var i = data.length-1;
-                                    res.render('contact/message.jade', {title: data[i].titre, message: 'Ton message a bien été envoyé ' + user.nom + '.', monH1: data[i].titre, user: user, data: data[i]});
+                                    res.render('contact/message.jade', {title: data[i].titre, message: 'Ton message a bien été envoyé ' + user.nom + '.', data: data[i]});
                                 }
                             );
                         };
@@ -83,7 +85,7 @@ router.get('/:maPage', function(req, res, next){
         user = req.session.user;
     };
     var maPage = req.params.maPage;
-    res.render('contact/' + maPage, {title: maPage, monH1: maPage, user: user});
+    res.render('contact/' + maPage, {title: maPage, user: user});
 });
 
 db.connect('mongodb://localhost:27017/blog', function(err){

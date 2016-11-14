@@ -6,26 +6,18 @@ var bodyParser = require('body-parser');
 var url = require('url');
 var querystring = require('querystring');
 var moment = require('moment');
+var ent = require('ent');
 var db = require('./db');
-
-// gestion des sessions
-router.use(cookieParser())
-    .use(session({
-        secret: 'unTrucSecret',
-        saveUninitialized: false,
-        resave: false
-    }))
-    .use(bodyParser.urlencoded({
-        extended: false
-    }));
+var ObjectID = require('mongodb').ObjectID;
 
 function restriction(req, res, next){
     if(!req.session){
-        res.render('users/connection.jade', { title: 'Connection', monH1: 'Connection', message: 'Tu dois te connecter pour aller là!'});
+        res.render('users/connection.jade', { title: 'Connection', message: 'Tu dois te connecter pour aller là!'});
     } else {
-        var user = req.session.user;
-        if(user.droits != 'god'){
-            res.render('/', {title: 'Accueil', monH1: 'Accueil', message: user.nom + ', il te faut avoir des super-pouvoirs pour accéder à cette partie du site!', user: user});
+        if(req.session.user.droits != 'god'){
+            if(req.session.user.droits != 'demiGod'){
+                res.render('/', {title: 'Accueil', message: req.session.user.pseudo + ', il te faut avoir des super-pouvoirs pour accéder à cette partie du site!', user: req.session.user, moment: moment});
+            };
         };
     };
     next();
@@ -34,20 +26,19 @@ function restriction(req, res, next){
 router.use(restriction);
 
 router.get('/listeUsers', function(req, res, next){
-    
     var collection = db.get().collection('users');
     var title = 'Administration des utilisateurs';
     var user = req.session.user;
-    
     collection.find().toArray(
-        
         function(err, data){
             if(err){
                 res.render('admin/listeUsers.jade', {title: title, message: 'Quelque chose s\'est mal passé, merci de réessayer!', user: user, data: data})
             } else {
-                var listeUsers = []
-                for(var j = 0; data[j]; j++){
-                    listeUsers.push(data[j]);
+                var listeUsers = [];
+                for(var i=0; data[i]; i++){
+                    if(data[i].droits != 'god'){
+                        listeUsers.push(data[i]);
+                    };
                 };
                 res.render('admin/listeUsers.jade', {title: title, user: user, listeUsers: listeUsers, moment: moment})
             };
@@ -55,45 +46,62 @@ router.get('/listeUsers', function(req, res, next){
     );
 });
 
-router.get('/user/profil', function(req, res, next){
+router.get('/user/:profil', function(req, res, next){
     var collection = db.get().collection('users');
-    var collectionMessages = db.get().collection('messages');
-    var administrateur = false;
-    if(req.query && req.session.user.droits == 'god'){
-        var params = querystring.parse(url.parse(req.url).query);
-        var administrateur = true;
-        
-        collection.findOne({nom: params.nom}, function(err, result){
+    var collectionMessages = db.get().collection('articles');
+    var profilId = req.params.profil;
+    if(req.session.user && req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
+        collection.findOne({_id: new ObjectID(profilId)}, {mdp:0}, function(err, result){
             if(result){
-                res.render('users/profil.jade', {title: 'Gestion: ' + result.nom, monH1: 'Gestion: ' + result.nom,  user: result, administrateur: administrateur, moment: moment});
+                var listeArticles = [];
+                console.log("5829d60d149ee29c31a143d1");
+                console.log(profilId)
+                console.log("5829d60d149ee29c31a143d1" === profilId)
+                collectionMessages.find({"nouvelArticle.auteurId": profilId}).toArray(
+                    function(err, data){
+                    console.log(data)
+                    res.render('admin/profil.jade', {title: 'Gestion: ' + result.pseudo, user: req.session.user, profil: result, listeArticles: data, moment: moment});
+                })
             };
         });
     };
 });
 
 router.post('/user/traitementEdition', function(req, res, next){
-    var administrateur = true;
     var collection = db.get().collection('users');
-    collection.updateOne({nom: req.body.nomUser},
-                        {$set: {droits: req.body.droitsUser}},
+    collection.updateOne({pseudo: ent.encode(req.body.pseudoUserManaged)},
+                        {$set: {droits: req.body.droitsUserManaged}},
                         function(err, result){
-        collection.findOne({nom: req.body.nomUser}, function(err, result){
+        collection.findOne({pseudo: ent.encode(req.body.pseudoUserManaged)}, function(err, result){
             if(err){
-                res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', monH1: 'Gestion des utilisateurs', message: 'Quelque chose s\'est mal passé!', administrateur: administrateur, user: req.session.user});
+                var decodeUser = {
+                    pseudo: ent.decode(result.pseudo),
+                    mail: ent.decode(result.mail),
+                    droits: result.droits,
+                    dateCreation: result.dateCreation,
+                    derniereConnection: result.derniereConnection
+                }
+                res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: 'Quelque chose s\'est mal passé!', user: req.session.user, userManaged: decodeUser});
             } else {
-                res.render('users/profil.jade', {title: 'Gestion: ' + result.nom, monH1: 'Gestion: ', message: 'Modification réussie!', administrateur: administrateur, user: result});
+                var decodeUser = {
+                    pseudo: ent.decode(result.pseudo),
+                    mail: ent.decode(result.mail),
+                    droits: result.droits,
+                    dateCreation: result.dateCreation,
+                    derniereConnection: result.derniereConnection
+                }
+                res.render('users/profil.jade', {title: 'Gestion: ' + result.pseudo, message: 'Modification réussie!', user: req.session.user, userManaged: decodeUser, moment: moment});
             };
         });
     });
 });
 
 router.get('/user/suppression', function(req, res, next){
-    var administrateur = true;
     var params = querystring.parse(url.parse(req.url).query);
     var collection = db.get().collection('users');
-    collection.deleteOne({nom: params.nomUser}, function(err, result){
+    collection.deleteOne({pseudo: ent.encode(params.pseudoUser)}, function(err, result){
                                         if (err) {
-                                            res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', monH1: 'Gestion des utilisateurs', message: 'Oops, quelque chose s\'est mal passé! merci de réessayer!', user: req.session.user, administrateur: administrateur});
+                                            res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: 'Oops, quelque chose s\'est mal passé! merci de réessayer!', user: req.session.user});
                                         } else {
                                             collection.find().toArray(
                                                 function(err, data){
@@ -101,11 +109,8 @@ router.get('/user/suppression', function(req, res, next){
                                                     if(err){
                                                         res.render('admin/listeUsers.jade', {title: title, message: 'Quelque chose s\'est mal passé, merci de réessayer!', user: user, data: data})
                                                     } else {
-                                                        var listeUsers = []
-                                                        for(var j = 0; data[j]; j++){
-                                                            listeUsers.push(data[j]);
-                                                        };
-                                                        res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', monH1: 'Gestion des utilisateurs', message: 'Suppression Réussie!', user: req.session.user, administrateur: administrateur, listeUsers: listeUsers, moment: moment});
+                                                        var listeUsers = data;
+                                                        res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: 'Suppression Réussie!', user: req.session.user, listeUsers: listeUsers, moment: moment});
                                                     };
                                                 }
                                             );
@@ -117,15 +122,12 @@ router.get('/suppressionInactifs', function(req, res, next){
     var collection = db.get().collection('users');
     var dateActuelle = new Date();
     var datePurge = dateActuelle - 31536000;
-    var administrateur = true;
-    var listeUsers = [];
+    var listeUsersInactifs = [];
     collection.remove({derniereConnection: {$lt: datePurge}}, function(err, result){
         collection.find().toArray(
             function(err, data){
-                for(var j = 0; data[j]; j++){
-                    listeUsers.push(data[j]);
-                };
-                res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', monH1: 'Gestion des utilisateurs', message: 'Suppression des comptes inactifs réussie!', user: req.session.user, administrateur: administrateur, listeUsers: listeUsers, moment: moment});
+                listeUsersInactifs = data;
+                res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: 'Suppression des comptes inactifs réussie!', user: req.session.user, listeUsers: listeUsersInactifs, moment: moment});
             }
         );
     });
@@ -139,7 +141,7 @@ router.get('/:maPage', function(req, res, next){
         var user = req.session.user;
     };
     var maPage = req.params.maPage;
-    res.render('admin/' + maPage, {title: maPage, monH1: maPage, user: user});
+    res.render('admin/' + maPage, {title: maPage, user: user});
 });
 
 db.connect('mongodb://localhost:27017/blog', function(err){

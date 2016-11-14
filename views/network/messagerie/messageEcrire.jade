@@ -1,0 +1,58 @@
+extends ../layoutNetwork
+
+block contentNetwork
+    .row
+        nav.menuIntern
+            ul
+                li.rose
+                    a(href='/users/edition', title='Edite ton profil') Edition Profil
+                li.bleu
+                    a(href='/users/deconnection', title='Déconnecte toi') Deconnection
+                    
+                if user && (user.droits == 'god' || user.droits == 'demiGod')
+                    li.jaune
+                        a(href='/admin/listeUsers', title='Administration users') God's place
+                else
+                    li.jaune
+                        a(href='/users/suppression', title='Supprime ton profil') Suppression
+        nav.menuNetwork
+            ul
+                li.rose
+                    a(href='/network/messagerie/own', title='Check tes messages!') Messagerie
+                li.bleu
+                    a(href='/network/tchat', title="Let's Talk!") Tchat
+                li.jaune
+                    a(href='/network/forum', title='Forum') Forum
+    .row
+        col-xs-12.col-md-offset-2.col-md-8.text-left.formArticles
+            h2 Envoyer un message Privé!
+            form#form_MP(action="/network/messagerie/envoi", method="POST")
+                .row
+                    label.col-xs-offset-1.col-xs-3 Destinataire :
+                    input#searchDestinataire.col-xs-7(type="text" name="searchDest", placeholder='Recherche par nom, prénom ou pseudo', required)
+                .row
+                    label.col-xs-offset-1.col-xs-3 Titre du message :
+                    input#inputTitreMP.col-xs-7(type="text", name="titreMP", placeholder="Titre du MP", required)
+                textarea#textareaMP.col-xs-12(name="area1", style="height: 100px;", required) Exprime toi ici!
+                input.col-xs-12.btn.btn-success.btn-lg(type="submit", value="ENVOYER !")
+            p
+                a.col-xs-12.btn.btn-warning.btn-lg(href="/network/messagerie/own", title="liste des messages") Liste des messages
+    if(user.photoProfil)
+        script.
+            var user = {
+                id: '!{user.id}',
+                pseudo: '!{user.pseudo}',
+                photoProfil: '!{user.photoProfil}'
+            };
+    else
+        script.
+            var user = {
+                id: '!{user.id}',
+                pseudo: '!{user.pseudo}'
+            };
+    script(type='text/javascript', src='../../javascripts/nicEdit.js')
+    script(type='text/javascript') bkLib.onDomLoaded(nicEditors.allTextAreas);
+    script(type='text/javascript', src="/socket.io/socket.io.js")
+    script(type='text/javascript') var socket = io('http://localhost:3001')
+    script(type='text/javascript', src='../../javascripts/messagerie.js')
+    include ../../footer.jade
