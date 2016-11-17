@@ -54,9 +54,6 @@ router.get('/user/:profil', function(req, res, next){
         collection.findOne({_id: new ObjectID(profilId)}, {mdp:0}, function(err, result){
             if(result){
                 var listeArticles = [];
-                console.log("5829d60d149ee29c31a143d1");
-                console.log(profilId)
-                console.log("5829d60d149ee29c31a143d1" === profilId)
                 collectionMessages.find({"nouvelArticle.auteurId": profilId}).toArray(
                     function(err, data){
                     console.log(data)
@@ -89,7 +86,7 @@ router.post('/user/traitementEdition', function(req, res, next){
                     droits: result.droits,
                     dateCreation: result.dateCreation,
                     derniereConnection: result.derniereConnection
-                }
+                };
                 res.render('users/profil.jade', {title: 'Gestion: ' + result.pseudo, message: 'Modification réussie!', user: req.session.user, userManaged: decodeUser, moment: moment});
             };
         });

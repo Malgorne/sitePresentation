@@ -155,7 +155,7 @@ router.post('/traitementConnection', function(req, res, next){
 // vérification du mdp
             if(reqBodyEncode.passW === result.mdp){
                 req.session.user = {
-                    id: result._id,
+                    _id: result._id,
                     droits: result.droits,
                     pseudo: ent.decode(result.pseudo),
                     mail: ent.decode(result.mail),
@@ -201,7 +201,7 @@ router.post('/traitementConnection', function(req, res, next){
                 };
                 req.session.user.listePosts = result.listePosts;
                 req.session.save();
-                collection.updateOne({_id: new ObjectID(req.session.user.id)}, {$set: {derniereConnection: new Date()}}, function(err, result){
+                collection.updateOne({_id: new ObjectID(req.session.user._id)}, {$set: {derniereConnection: new Date()}}, function(err, result){
                     res.render('users/profil.jade', {title: 'Mon blog/ Connection réussie', message: 'Tu es connecté ' + req.session.user.pseudo + '.', pseudo: req.session.user.pseudo, user: req.session.user, moment: moment});
                 });
             } else {
@@ -215,11 +215,10 @@ router.post('/traitementConnection', function(req, res, next){
 
 
 router.get('/profil', function(req, res, next){
-    
     var collection = db.get().collection('users');
     var collectionMessages = db.get().collection('messages');
     if(req.session.user){
-        collection.findOne({_id: new ObjectID(req.session.user.id)}, {mdp: 0}, function(err, result){
+        collection.findOne({_id: new ObjectID(req.session.user._id)}, {mdp: 0}, function(err, result){
             if(err){
                 res.render('/', {title: 'Accueil', message: 'Une erreur est survenue.'})
             } else {
@@ -300,7 +299,7 @@ router.post('/traitementEdition', function(req, res, next){
             res.render('users/connection.jade', {title: 'Connection', user: req.session.user, message: messageErreur});
         } else {
             if(result){
-                if(result._id != req.session.user.id){
+                if(result._id != req.session.user._id){
                     res.render('users/edition.jade', {title: 'Mon blog/ Edition profil', message: 'Ce pseudo ou/et cette adresse mail est/sont déjà pris(es). Merci d\'en choisir un/une autre.', user: req.session.user});
                 } else {
 // objet qui sera set à la fin
@@ -397,6 +396,33 @@ router.post('/traitementEdition', function(req, res, next){
             };
         };
     });
+});
+
+router.get('/editMdp/:mail', function(req, res, next){
+    var mailSoumi = req.param.mail;
+    var collection = db.get().collection('users');
+    collection.findOne({mail: ent.encode(mailSoumi)}, {pseudo: 1, mdp: 1}, function(err, result){
+        console.log(result);
+        
+/*You can send an email by calling app.mailer.send(template, locals, callback). To send an email using the template above you could write:
+
+app.get('/', function (req, res, next) {
+  app.mailer.send('email', {
+    to: 'example@example.com', // REQUIRED. This can be a comma delimited string just like a normal email to field.  
+    subject: 'Test Email', // REQUIRED. 
+    otherProperty: 'Other Property' // All additional properties are also passed to the template as local variables. 
+  }, function (err) {
+    if (err) {
+      // handle error 
+      console.log(err);
+      res.send('There was an error sending the email');
+      return;
+    }
+    res.send('Email Sent');
+  });
+});*/
+        
+    })
 });
 
 router.get('/deconnection', function(req, res, next){

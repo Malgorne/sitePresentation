@@ -15,6 +15,7 @@
 
 {$push:{ "articlesProfil.$.reponses": reponse }}
 
+db.articles.find({"nouvelArticle.auteurId": "5829d60d149ee29c31a143d1"}).toArray()
 
 
 db.users.ensureIndex({pseudo : "text"})

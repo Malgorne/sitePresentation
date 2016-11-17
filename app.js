@@ -6,6 +6,7 @@ var session = require('express-session');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var helmet = require('helmet'); // gère des failles de sécurité
+var mailer = require('express-mailer');
 
 var users = require('./routes/users');
 var contact = require('./routes/contact');
@@ -14,6 +15,18 @@ var network = require('./routes/network');
 var routes = require('./routes/index');
 
 var app = express();
+ 
+mailer.extend(app, {
+  from: 'no-reply@fritz.solutions',
+  host: 'smtp.gmail.com', // hostname 
+  secureConnection: true, // use SSL 
+  port: 465, // port for secure SMTP 
+  transportMethod: 'SMTP', // default is SMTP. Accepts anything that nodemailer accepts 
+  auth: {
+    user: 'fritz.benj@gmail.com',
+    pass: 'H1pilote'
+  }
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

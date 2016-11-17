@@ -57,4 +57,26 @@ $(document).ready(function() {
     if($('footer').length>1){
         $('footer')[0].remove();
     };
+// gestion du mot de passe perdu
+    $('#renvoiMdp').click(function(ev){
+        /*$('#formConnection').submit(function(){
+            return false;
+        });*/
+        if($('#inputMail').val()){
+            $('#renvoiMdp').attr({href: "/users/editMdp/"+$('#inputMail').val()})
+        } else {
+            return false;
+        }
+    });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 });

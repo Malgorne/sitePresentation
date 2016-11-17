@@ -5,17 +5,17 @@ block content
       .col-xs-4.col-xs-offset-4
         h2 Je me connecte:
         form(method='post', action='/users/traitementConnection')
-          .form-group
+          #formConnection.form-group
             if data
                 label(for='mail') Votre mail: 
-                input.form-control(type='email', name='mail' value='#{data.mail}')
+                input#inputMail.form-control(type='email', name='mail' value='#{data.mail}')
             else
                 label(for='mail') Votre mail: 
-                input.form-control(type='email', name='mail')
+                input#inputMail.form-control(type='email', name='mail')
             label(for='passW') Votre mot de passe: 
             input.form-control(type='password', name='passW')
             br
             input.bulleRouge.jaune(type='submit', value='Connection')
-            
-            a.bulleRouge.bleu.col-md-offset-4(href='/users/inscription') Inscription
+            a#renvoiMdp.bulleRouge.rouge(href='/users/editMdp') Mdp oublié
+            a.bulleRouge.bleu(href='/users/inscription') Inscription
     include ../footer
