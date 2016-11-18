@@ -50,25 +50,27 @@ block content
     .row
         .col-xs-12.col-md-offset-3.col-md-6.text-left
             h1 Management de #{profil.pseudo} !
-            h2 Liste des articles:
-                if(listeArticles)
-                    ul
-                        each article in listeArticles
-                            li(id="art- #{article._id}")
-                                p #{article.nouvelArticle.auteurPseudo} a écrit :
-                                p le #{moment(article.nouvelArticle.dateCreation).format("DD-MM-YYYY")}
-                                p #{article.nouvelArticle.contenu}
-                                p sur le mur de #{article.nouvelArticle.profilPseudo}
-                            if(article.nouvelArticle.reponses.length)
-                                ul
-                                    each reponse in article.nouvelArticle.reponses
-                                        li(id="rep-#{reponse.id}")
-                                            p #{reponse.auteurPseudo} a répondu :
-                                            p #{reponse.contenu}
-                            else
-                                p Il n'y a pas encore de réponse
-                else
-                    p Il n'y a pas encore d'article sur ce profil
+            h2#h2ArticlesModerate Liste des articles:
+            if(listeArticles)
+                ul#ulArticlesModerate.col-xs-12
+                    each article in listeArticles
+                        li.row.liArticlesModerate(id="art-#{article._id}")
+                            p.col-xs-12 #{article.nouvelArticle.auteurPseudo} a écrit :
+                            p.col-xs-12 le #{moment(article.nouvelArticle.dateCreation).format("DD-MM-YYYY")}
+                            p.col-xs-12 #{article.nouvelArticle.contenu}
+                            p.col-xs-10 sur le mur de #{article.nouvelArticle.profilPseudo}
+                            a.btn.rose.col-xs-2(href='/admin/moderationArticle/#{article._id}') MODERER
+                        if(article.nouvelArticle.reponses.length)
+                            ul#ulReponsesModerate
+                                each reponse in article.nouvelArticle.reponses
+                                    li.row(id="rep-#{reponse.id}")
+                                        p.col-xs-12 #{reponse.auteurPseudo} a répondu :
+                                        p.col-xs-10 #{reponse.contenu}
+                                        a.btn.rose.col-xs-2(href='/admin/moderationReponse/#{reponse.id}') MODERER
+                        else
+                            p Il n'y a pas encore de réponse
+            else
+                p Il n'y a pas encore d'article sur ce profil
                                 
                                 
 

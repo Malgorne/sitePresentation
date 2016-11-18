@@ -526,3 +526,14 @@ footer img{
 .good{
     background-color: green;
 }
+
+/* ADMIN */
+
+#h2ArticlesModerate{
+    margin-bottom: 20px;
+    text-decoration: underline;
+}
+
+#ulArticlesModerate{
+    background-color: aliceblue;
+}

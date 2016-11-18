@@ -12,6 +12,7 @@ var multer = require('multer'); // gère lupload de fichiers
 var fs = require('fs');
 var upload = multer({ dest: 'public/images/uploads/photoProfil' });
 
+
 router.post('/editPhotoProfil', upload.single('photoProfil'), function (req, res, next) {
   // req.file is the `avatar` file
   // hold the text fields, if there were any
@@ -396,33 +397,6 @@ router.post('/traitementEdition', function(req, res, next){
             };
         };
     });
-});
-
-router.get('/editMdp/:mail', function(req, res, next){
-    var mailSoumi = req.param.mail;
-    var collection = db.get().collection('users');
-    collection.findOne({mail: ent.encode(mailSoumi)}, {pseudo: 1, mdp: 1}, function(err, result){
-        console.log(result);
-        
-/*You can send an email by calling app.mailer.send(template, locals, callback). To send an email using the template above you could write:
-
-app.get('/', function (req, res, next) {
-  app.mailer.send('email', {
-    to: 'example@example.com', // REQUIRED. This can be a comma delimited string just like a normal email to field.  
-    subject: 'Test Email', // REQUIRED. 
-    otherProperty: 'Other Property' // All additional properties are also passed to the template as local variables. 
-  }, function (err) {
-    if (err) {
-      // handle error 
-      console.log(err);
-      res.send('There was an error sending the email');
-      return;
-    }
-    res.send('Email Sent');
-  });
-});*/
-        
-    })
 });
 
 router.get('/deconnection', function(req, res, next){

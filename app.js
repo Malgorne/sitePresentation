@@ -6,6 +6,9 @@ var session = require('express-session');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var helmet = require('helmet'); // gère des failles de sécurité
+var ent = require('ent'); // gère l'encryptage/décryptage des inputs
+var db = require('./routes/db');
+var ObjectID = require('mongodb').ObjectID;
 var mailer = require('express-mailer');
 
 var users = require('./routes/users');
@@ -17,16 +20,42 @@ var routes = require('./routes/index');
 var app = express();
  
 mailer.extend(app, {
-  from: 'no-reply@fritz.solutions',
-  host: 'smtp.gmail.com', // hostname 
+  from: 'no-replay@fritz.solutions',
+  host: 'mail.gandi.net', // hostname 
   secureConnection: true, // use SSL 
   port: 465, // port for secure SMTP 
   transportMethod: 'SMTP', // default is SMTP. Accepts anything that nodemailer accepts 
   auth: {
-    user: 'fritz.benj@gmail.com',
-    pass: 'H1pilote'
+    user: 'admin@fritz.solutions',
+    pass: 'Passw01#H1pilote'
   }
 });
+
+app.get('/users/editMdp/:mailSearch', function (req, res, next) {
+    var mailToSend = req.params.mailSearch;
+    var collection = db.get().collection('users');
+    collection.findOne({mail: ent.encode(mailToSend)}, {_id: 0, pseudo: 1, mdp: 1}, function(err, result){
+        if(!err && result){
+            console.log(result)
+            app.mailer.send('emailMdp', {
+                to: mailToSend, 
+                subject: 'Mot de passe Oublié',
+                pseudo: result.pseudo,
+                mdp: result.mdp
+                }, function (err) {
+                    if (err) {
+                    // handle error 
+                        res.render('users/connection.jade', {title: 'Connection', message:'Une erreur est survenue. Merci de recommancer.', titre:'renvoiMdp'});
+                    } else {
+                        res.render('users/connection.jade', {title: 'Connection', message:"Votre mot de passe a été renvoyé à l'adresse du compte", titre:'renvoiMdp'});
+                    };
+            });
+        } else {
+            res.render('users/connection.jade', {title: 'Connection', message:'Une erreur est survenue. Merci de recommancer.', titre:'renvoiMdp'});
+        };
+    });
+});
+    
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

@@ -14,7 +14,7 @@ function restriction(req, res, next){
     if(!req.session){
         res.render('users/connection.jade', { title: 'Connection', message: 'Tu dois te connecter pour aller là!'});
     } else {
-        if(req.session.user.droits != 'god'){
+        if(req.session && req.session.user && req.session.user.droits != 'god'){
             if(req.session.user.droits != 'demiGod'){
                 res.render('/', {title: 'Accueil', message: req.session.user.pseudo + ', il te faut avoir des super-pouvoirs pour accéder à cette partie du site!', user: req.session.user, moment: moment});
             };
@@ -29,21 +29,19 @@ router.get('/listeUsers', function(req, res, next){
     var collection = db.get().collection('users');
     var title = 'Administration des utilisateurs';
     var user = req.session.user;
-    collection.find().toArray(
-        function(err, data){
-            if(err){
-                res.render('admin/listeUsers.jade', {title: title, message: 'Quelque chose s\'est mal passé, merci de réessayer!', user: user, data: data})
-            } else {
-                var listeUsers = [];
-                for(var i=0; data[i]; i++){
-                    if(data[i].droits != 'god'){
-                        listeUsers.push(data[i]);
-                    };
+    collection.find().toArray( function(err, data){
+        if(err){
+            res.render('admin/listeUsers.jade', {title: title, message: 'Quelque chose s\'est mal passé, merci de réessayer!', user: user, data: data})
+        } else {
+            var listeUsers = [];
+            for(var i=0; data[i]; i++){
+                if(data[i].droits != 'god'){
+                    listeUsers.push(data[i]);
                 };
-                res.render('admin/listeUsers.jade', {title: title, user: user, listeUsers: listeUsers, moment: moment})
             };
-        }
-    );
+            res.render('admin/listeUsers.jade', {title: title, user: user, listeUsers: listeUsers, moment: moment})
+        };
+    });
 });
 
 router.get('/user/:profil', function(req, res, next){
@@ -117,16 +115,19 @@ router.get('/user/suppression', function(req, res, next){
 
 router.get('/suppressionInactifs', function(req, res, next){
     var collection = db.get().collection('users');
-    var dateActuelle = new Date();
-    var datePurge = dateActuelle - 31536000;
-    var listeUsersInactifs = [];
-    collection.remove({derniereConnection: {$lt: datePurge}}, function(err, result){
-        collection.find().toArray(
-            function(err, data){
-                listeUsersInactifs = data;
-                res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: 'Suppression des comptes inactifs réussie!', user: req.session.user, listeUsers: listeUsersInactifs, moment: moment});
-            }
-        );
+    var dateActu = new Date();
+    var datePurge = new Date(dateActu-15778800000);
+    collection.remove({derniereConnection: {$lte: datePurge}}, function(err, result){
+        var listeUsers=[];
+        collection.find().toArray( function(err, data){
+            listeUsers = data;
+        })
+        if(!err){
+            var message = "Tout s'est bien passé!";
+        } else {
+            var message = "Une erreure est survenue, merci de recommancer!";
+        };
+        res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: message, user: req.session.user, listeUsers: listeUsers, moment: moment});
     });
 });
 

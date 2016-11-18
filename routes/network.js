@@ -68,26 +68,37 @@ router.get('/mur/:profilDemande', function(req, res, next){
             if(result.listeAmis){
                 profil.listeAmis = result.listeAmis;
                 for(var i = 0; result.listeAmis[i]; i++){
-                    if(result.listeAmis[i]._id == req.session.user.id){
+                    if(result.listeAmis[i]._id == req.session.user._id){
                         profil.isFriend = true;
                     };
                 };
             };
             if(result.listePosts){
                 profil.listePosts = result.listePosts;
-            }
+            };
             if(result.articlesProfil && result.articlesProfil.length){
                 profil.articlesProfil = [];
                 for(var i=0; result.articlesProfil[i]; i++){
                     result.articlesProfil[i].auteurPseudo = ent.decode(result.articlesProfil[i].auteurPseudo);
                     result.articlesProfil[i].contenu = ent.decode(result.articlesProfil[i].contenu);
+                    var spanEditionArticle = '<div class="row text-center spanArticle"></div>';
+                    if(profil._id == req.session.user._id || result.articlesProfil[i].auteurId == req.session.user._id || profil.isFriend || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
+                        spanEditionArticle = '<div class="row text-center spanArticle"><a id="rep-'+ result.articlesProfil[i].id +'" class="repArticle" href="#'+ result.articlesProfil[i].id +'">Répondre</a>';
+                        if(result.articlesProfil[i].auteurId == req.session.user._id){
+                            spanEditionArticle+='<a id="edit-'+ result.articlesProfil[i].id +'" class="editArticle" href="#'+ result.articlesProfil[i].id +'">Edition</a>';
+                        };
+                        if(result.articlesProfil[i].auteurId == req.session.user._id || profil._id == req.session.user._id || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
+                            spanEditionArticle+='<a id="sup-'+ result.articlesProfil[i].id +'" class="supArticle" href="#'+ result.articlesProfil[i].id +'">Suppression</a>';
+                        };
+                        spanEditionArticle+='</div>';
+                    };
                     if(result.articlesProfil[i].reponses){
                         var listeDivReponses='';
                         for(var j = 0; result.articlesProfil[i].reponses[j]; j++){
                             var objetReponse = result.articlesProfil[i].reponses[j];
                             if(objetReponse){
                                 var reponseCourante = '<div id="'+ objetReponse.id +'" class="row reponseArticle"><p class="col-xs-12 dateReponse">Message posté le : ' + moment(objetReponse.id).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ objetReponse.auteurPseudo + ' a écrit:</p><p>' + ent.decode(objetReponse.contenu) + '</p>';
-                                if(profil.id == req.session.user.id || profil.isFriend || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
+                                if(profil._id == req.session.user._id || req.session.user._id == objetReponse.auteurId || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
                                     reponseCourante+='<p><a id="supRep-'+ objetReponse.id +'" class="supReponse" href="#'+ result.articlesProfil[i].id +'" title="supprimer Réponse">Supprimer</a></p>';
                                 } else {
                                     reponseCourante+='</div>';
@@ -95,9 +106,9 @@ router.get('/mur/:profilDemande', function(req, res, next){
                                 listeDivReponses+=reponseCourante;
                             };
                         };
-                        var articleAtransmettre = '<div id="'+ result.articlesProfil[i].id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(result.articlesProfil[i].dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ result.articlesProfil[i].auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ result.articlesProfil[i].id +'" class="row contenuArticle">' + ent.decode(result.articlesProfil[i].contenu) + '</div><div class="row text-center spanArticle"><a id="edit-'+ result.articlesProfil[i].id +'" class="editArticle" href="#'+ result.articlesProfil[i].id +'">Edition</a><a id="sup-'+ result.articlesProfil[i].id +'" class="supArticle" href="#'+ result.articlesProfil[i].id +'">Suppression</a><a id="rep-'+ result.articlesProfil[i].id +'" class="repArticle" href="#'+ result.articlesProfil[i].id +'">Répondre</a></div>'+ listeDivReponses +'</div>';
+                        var articleAtransmettre = '<div id="'+ result.articlesProfil[i].id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(result.articlesProfil[i].dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ result.articlesProfil[i].auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ result.articlesProfil[i].id +'" class="row contenuArticle">' + ent.decode(result.articlesProfil[i].contenu) + '</div>' + spanEditionArticle + listeDivReponses +'</div>';
                     } else {
-                        var articleAtransmettre = '<div id="'+ result.articlesProfil[i].id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(result.articlesProfil[i].dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ result.articlesProfil[i].auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ result.articlesProfil[i].id +'" class="row contenuArticle">' + ent.decode(result.articlesProfil[i].contenu) + '</div><div class="row text-center spanArticle"><a id="edit-'+ result.articlesProfil[i].id +'" class="editArticle" href="#'+ result.articlesProfil[i].id +'">Edition</a><a id="sup-'+ result.articlesProfil[i].id +'" class="supArticle" href="#'+ result.articlesProfil[i].id +'">Suppression</a><a id="rep-'+ result.articlesProfil[i].id +'" class="repArticle" href="#'+ result.articlesProfil[i].id +'">Répondre</a></div></div>';
+                        var articleAtransmettre = '<div id="'+ result.articlesProfil[i].id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(result.articlesProfil[i].dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ result.articlesProfil[i].auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ result.articlesProfil[i].id +'" class="row contenuArticle">' + ent.decode(result.articlesProfil[i].contenu) + '</div>' + spanEditionArticle;
                     };
                     profil.articlesProfil.unshift(articleAtransmettre);
                 };
@@ -109,12 +120,13 @@ router.get('/mur/:profilDemande', function(req, res, next){
 
 router.get('/messagerie/own', function(req, res, next){
     var collection = db.get().collection('users');
-    var listeMessages = [];
-    collection.findOne({_id: new ObjectID(req.session.user.id)}, {mdp: 0}, function(err, profil){
-        if(profil.demandesAmis){
+    collection.findOne({_id: new ObjectID(req.session.user._id)}, {mdp: 0}, function(err, profil){
+        var listeMessages = [];
+        if(profil.demandesAmis.length){
             for(var i = 0; profil.demandesAmis[i]; i++){
                 var demande = profil.demandesAmis[i];
                 if(profil.demandesAmis[i].statut != 'efface'){
+                    console.log(demande)
                     var message = {
                         id: demande.id,
                         envoyeParId: new ObjectID(demande.demandeur.id),
@@ -136,7 +148,8 @@ router.get('/messagerie/own', function(req, res, next){
                 };
             };
         };
-        if(profil.listeMessages && profil.listeMessages.length){
+        
+        if(profil.listeMessages.length){
             for(var i = 0; profil.listeMessages[i]; i++){
                 var data = profil.listeMessages[i];
                 var message = {
@@ -173,7 +186,7 @@ router.post('/messagerie/envoi', function(req, res, next){
     if(req.body.searchDest && req.body.titreMP && req.body.area1){
         var message = {
             id: Date.now(),
-            envoyeParId: new ObjectID(req.session.user.id),
+            envoyeParId: new ObjectID(req.session.user._id),
             envoyeParPseudo: req.session.user.pseudo,
             recuParId: new ObjectID(req.body.searchDest.split('-')[1]),
             recuParPseudo: ent.encode(req.body.searchDest.split('-')[0]),
@@ -184,12 +197,14 @@ router.post('/messagerie/envoi', function(req, res, next){
             dataType: 'messagePrive'
         };
         var collection = db.get().collection('users');
-        collection.updateOne({_id: message.envoyeParId}, {$push: {listeMessages: message}}, {multi: true}, function(err, result){
+        collection.updateOne({_id: message.envoyeParId}, {$push: {listeMessages: message}}, function(err, result){
             if(!err){
-                collection.updateOne({_id: message.recuParId}, {$push: {listeMessages: message}}, {multi: true}, function(err, result){
+                collection.updateOne({_id: message.recuParId}, {$push: {listeMessages: message}}, function(err, result){
                     res.render('network/messagerie/messageEcrire.jade',{titre: 'network', user: req.session.user, moment: moment, message: 'Message bien envoyé à ' + message.recuParPseudo});
                 });
-            };
+            } else {
+                res.render('network/messagerie/messageEcrire.jade',{titre: 'network', user: req.session.user, moment: moment, message: 'Une erreur est survenue, merci de recommencer'});
+            }
         });
     } else {
         res.render('network/messagerie/messageEcrire.jade',{titre: 'network', user: req.session.user, moment: moment, message: 'Une erreur est survenue, merci de recommencer'});
@@ -200,7 +215,7 @@ router.get('/messagerie/:messageDemande', function(req, res, next){
     var messageDemande = req.params.messageDemande;
     var collection = db.get().collection('users');
     if(messageDemande.split('-')[1] == 'demandeAmis'){
-        collection.findOne({_id: new ObjectID(req.session.user.id), demandesAmis: {$elemMatch: {id: Number(messageDemande.split('-')[0])}}}, function(err, result){
+        collection.findOne({_id: new ObjectID(req.session.user._id), demandesAmis: {$elemMatch: {id: Number(messageDemande.split('-')[0])}}}, function(err, result){
             if(result){
                 var message;
                 if(result.demandesAmis){
@@ -233,7 +248,7 @@ router.get('/messagerie/:messageDemande', function(req, res, next){
             };
         });
     } else {
-        collection.findOne({_id: new ObjectID(req.session.user.id), listeMessages: {$elemMatch: {id: Number(messageDemande.split('-')[0])}}}, function(err, result){
+        collection.findOne({_id: new ObjectID(req.session.user._id), listeMessages: {$elemMatch: {id: Number(messageDemande.split('-')[0])}}}, function(err, result){
             if(!err && result){
                 if(result.listeMessages){
                     for (var i=0; result.listeMessages[i]; i++){
@@ -268,7 +283,7 @@ router.get('/newFriends/list', function(req, res, next){
         for(var i=0; data[i]; i++){
             if(data[i].demandesAmis){
                 for(var j=0; data[i].demandesAmis[j]; j++){
-                    if(data[i].demandesAmis[j].demandeur.id == req.session.user.id || data[i].demandesAmis[j].userCible._id == new ObjectID(req.session.user.id)){
+                    if(data[i].demandesAmis[j].demandeur.id == req.session.user._id || data[i].demandesAmis[j].userCible._id == new ObjectID(req.session.user._id)){
                         data[i].isEnCours = true;
                     } else {
                         data[i].isEnCours = false;
@@ -277,7 +292,7 @@ router.get('/newFriends/list', function(req, res, next){
             };
             if(data[i].listeAmis){
                 for(var j=0; data[i].listeAmis[j]; j++){
-                    if(data[i].listeAmis[j]._id == req.session.user.id){
+                    if(data[i].listeAmis[j]._id == req.session.user._id){
                         data[i].isFriend = true;
                     };
                 };
@@ -299,9 +314,9 @@ router.get('/newFriends/:choixUser', function(req, res, next){
         });
     } else {
         collection.findOne({_id: new ObjectID(otherUserId)}, {_id: 1, pseudo: 1, photoProfil: 1}, function(err, result){
-            collection.updateOne({_id: new ObjectID(req.session.user.id)}, {$push: {listeAmis: result}}, function(err, result2){
+            collection.updateOne({_id: new ObjectID(req.session.user._id)}, {$push: {listeAmis: result}}, function(err, result2){
                 var currentUser = {
-                    _id: new ObjectID(req.session.user.id),
+                    _id: new ObjectID(req.session.user._id),
                     pseudo: req.session.user.pseudo,
                     photoProfil: req.session.user.photoProfil
                 };

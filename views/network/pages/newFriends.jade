@@ -52,8 +52,8 @@ block contentNetwork
                 input.col-xs-3(type="submit", value="rechercher")
             ul#ulProfils.col-xs-12.col-md-offset-2.col-md-8.text-left
                 each profil, index in listeProfils
-                    if(profil._id != user.id && !profil.isFriend)
-                        li.liNewFriends.col-xs-12.col-md-4(id="li-#{profil.id}")
+                    if(profil._id != user._id && !profil.isFriend)
+                        li.liNewFriends.col-xs-12.col-md-4(id="li-#{profil._id}")
                             a(id='profil-#{profil._id}', href='/network/mur/#{profil._id}', title='#{profil.pseudo}')
                                 if(profil.photoProfil)
                                     img.imgNewFriends(src='../../#{profil.photoProfil}', title='#{profil.pseudo}', alt='#{profil.pseudo}')
@@ -63,18 +63,18 @@ block contentNetwork
                                     if(profil.isEnCours)
                                         a.waitingFriend(id="linkProfil-#{profil._id}", href="/network/messagerie/own", title="en attente #{profil.pseudo}") En attente
                                     else
-                                        a.addFriend(id="linkProfil-#{profil._id}", href="#li-#{profil.id}", title="ajouter #{profil.pseudo}") Ajouter
+                                        a.addFriend(id="linkProfil-#{profil._id}", href="#li-#{profil._id}", title="ajouter #{profil.pseudo}") Ajouter
     if(user.photoProfil)
         script.
             var user = {
-                id: '!{user.id}',
+                id: '!{user._id}',
                 pseudo: '!{user.pseudo}',
                 photoProfil: '!{user.photoProfil}'
             };
     else
         script.
             var user = {
-                id: '!{user.id}',
+                id: '!{user._id}',
                 pseudo: '!{user.pseudo}'
             };
     script(type='text/javascript', src="/socket.io/socket.io.js")

@@ -26,10 +26,10 @@ block contentNetwork
         .row#lectureMessage
             .col-xs-12.col-md-offset-2.col-md-8
                 br
-                p.text-left Message envoyé le #{moment(messageLu.date).format("DD-MM-YYYY")} .
+                p.text-left Message envoyé le #{moment(messageLu.creation).format("DD-MM-YYYY")} .
                 h2 !{messageLu.titre}
                 if(messageLu.dataType == 'demandeAmis')
-                    if(user.id == messageLu.envoyeParId)
+                    if(user._id == messageLu.envoyeParId)
                         p Vous avez demandé à 
                             a(href="/network/mur/#{messageLu.recuParId}", title="voir le profil de #{messageLu.recuParPseudo}") !{messageLu.recuParPseudo}
                             |  de devenir votre ami!
@@ -39,7 +39,7 @@ block contentNetwork
                             img(src='../../images/uploads/photoProfil/photoProfilDefault.jpg', title="Votre photo")
                         p
                             a.col-xs-6.btn.btn-danger.btn-lg(href="/network/newFriends/annule-#{messageLu.recuParId}-#{messageLu.id}", title="annuler la demande") Annuler la demande
-                            a#supMessage.col-xs-6.btn.btn-danger.btn-lg(href="sup-#{user.id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="supprimer le message") Supprimer le message
+                            a#supMessage.col-xs-6.btn.btn-danger.btn-lg(href="sup-#{user._id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="supprimer le message") Supprimer le message
                     else
                         if(messageLu.contenu.photoProfil)
                             img(src="../../#{messageLu.contenu.photoProfil}", title="#{user.pseudo}")
@@ -52,34 +52,34 @@ block contentNetwork
                             a.col-xs-6.btn.btn-success.btn-lg(href="/network/newFriends/accept-#{messageLu.envoyeParId}-#{messageLu.id}", title="accepter la demande") Accepter la demande
                             a.col-xs-6.btn.btn-danger.btn-lg(href="/network/newFriends/refuse-#{messageLu.envoyeParId}-#{messageLu.id}", title="refuser la demande") Refuser la demande
                 else
-                    if(user.id == messageLu.envoyeParId)
+                    if(user._id == messageLu.envoyeParId)
                         p Vous avez écrit à  
                              a(href="/network/mur/#{messageLu.recuParId}", title="voir le profil de #{messageLu.recuParPseudo}") !{messageLu.recuParPseudo}
                              |  :
                         p !{messageLu.contenu}
+                        a#supMessage.col-xs-12.btn.btn-danger.btn-lg(href="sup-#{user._id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="supprimer le message") Supprimer le message
                     else
                         p
                             a(href="/network/mur/#{messageLu.envoyeParId}", title="voir le profil de #{messageLu.envoyeParPseudo}") !{messageLu.envoyeParPseudo} 
                             | vous a écrit :
                         p !{messageLu.contenu}
-                    p 
-                        a#repMessage.col-xs-6.btn.btn-success.btn-lg(href="rep-#{user.id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="répondre au message") Répondre au message
-                        a#supMessage.col-xs-6.btn.btn-danger.btn-lg(href="sup-#{user.id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="supprimer le message") Supprimer le message
-                    
+                        p
+                            a#repMessage.col-xs-6.btn.btn-success.btn-lg(href="rep-#{user._id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="répondre au message") Répondre au message
+                            a#supMessage.col-xs-6.btn.btn-danger.btn-lg(href="sup-#{user._id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="supprimer le message") Supprimer le message
                 p
                     a.col-xs-12.btn.btn-warning.btn-lg(href="/network/messagerie/own", title="liste des messages") Liste des messages
                 
     if(user.photoProfil)
         script.
             var user = {
-                id: '!{user.id}',
+                id: '!{user._id}',
                 pseudo: '!{user.pseudo}',
                 photoProfil: '!{user.photoProfil}'
             };
     else
         script.
             var user = {
-                id: '!{user.id}',
+                id: '!{user._id}',
                 pseudo: '!{user.pseudo}'
             };
     script(type='text/javascript', src='../../javascripts/nicEdit.js')

@@ -139,7 +139,7 @@ ioArticlesMurs.on('connection', function(socket){
                 profilPseudo: profil.pseudo,
                 contenu: ent.encode(article)
             };
-            collectionArticles.insert({ nouvelArticle }, function(err){
+            collectionArticles.insert({nouvelArticle: nouvelArticle}, function(err){
                 if(!err){
                     collectionArticles.find().toArray(function(err, data){
                         var i = data.length-1;
@@ -288,13 +288,15 @@ var ioFriends = io.of('/ioFriends');
 ioFriends.on('connection', function(socket){
     socket.on('connectionFriends', function(data){
         var user = data.user;
+        console.log(user)
         var collectionUsers = db.get().collection('users');
         socket.on('searchFriends', function(object){
             var data = object.value;
             var onSubmit = object.submit;
             collectionUsers.createIndex({"pseudo": "text", "description.nom": "text", "description.prenom": "text"});
-            collectionUsers.find( {$or: [{$text: { $search: data, $caseSensitive: false }}]}, { score: { $meta: "textScore" } } ).sort( { score: { $meta: "textScore" } } ).toArray(function(err, data){
+            collectionUsers.find( {$or: [{$text: { $search: data, $caseSensitive: false }}]}, { score: { $meta: "textScore" }}).sort( { score: { $meta: "textScore" } } ).toArray(function(err, data){
                 if(!err){
+                    console.log(data)
                     if(onSubmit){
                         socket.emit('searchFriendsSubmitResult', data);
                     } else {
@@ -313,6 +315,7 @@ ioFriends.on('connection', function(socket){
             collectionUsers.findOne({_id: new ObjectID(data)}, {_id: 1, pseudo: 1, photoProfil: 1}, function(err, cible){
                 if(cible){
                     demandeAmi.userCible = cible;
+                    console.log(demandeAmi)
                     collectionUsers.updateOne({_id: new ObjectID(user.id)}, {$push: {"demandesAmis": demandeAmi}}, function(err, result){
                         if(!err){
                             collectionUsers.updateOne({_id: new ObjectID(demandeAmi.userCible._id)}, {$push: {"demandesAmis": demandeAmi}}, function(err, result){
@@ -327,9 +330,9 @@ ioFriends.on('connection', function(socket){
         });
         socket.on('removeFriend', function(data){
             // on récupère l'id du friend à remove et celui du user qui supprime
-            collectionUsers.updateOne({_id: new ObjectID(user.id)}, {$pull: {listeAmis: {_id: new ObjectID(data)}}}, function(err, result){
+            collectionUsers.updateOne({_id: new ObjectID(user._id)}, {$pull: {listeAmis: {_id: new ObjectID(data)}}}, function(err, result){
                 if(!err){
-                    collectionUsers.updateOne({_id: new ObjectID(data)}, {$pull: {listeAmis: {_id: new ObjectID(user.id)}}}, function(err, result){
+                    collectionUsers.updateOne({_id: new ObjectID(data)}, {$pull: {listeAmis: {_id: new ObjectID(user._id)}}}, function(err, result){
                         if(!err){
                             socket.emit('removeFriendSaved', data);
                         };
@@ -354,14 +357,10 @@ ioMessagerie.on('connection', function(socket){
                 };
             };
             collectionUsers.update({_id: new ObjectID(user.id)}, {$pull: {listeMessages: {$or: messToRemove}}}, function(err, result){
-                console.log('dans l\'update')
-                console.log(err);
-                console.log(result);
                 if(!err && result){
                     socket.emit('suppMuliMessagesSaved', listeMessagesSup);
                 };
-            })
-            
+            });
         });
         socket.on('lectureMessage', function(data){
             var messageId = data.messageId;
@@ -427,6 +426,7 @@ ioMessagerie.on('connection', function(socket){
         socket.on('supMessage', function(messageId){
             collectionUsers.updateOne({_id: new ObjectID(user.id)}, { $pull: { listeMessages: {id: Number(messageId)}}}, function(err, result){
                 if(!err){
+                    console.log(result)
                     var destination = '/network/messagerie/own';
                     socket.emit('supMessageSaved', destination)
                 };
@@ -464,7 +464,7 @@ ioTchat.on('connection', function(socket){
         socket.on('rejoindreSalon', function(roomsName){
         // on supprime le user de la liste de la room quittée
             for(var i=0; listeUsers[roomsName.salonAquitter][i]; i++){
-                if(listeUsers[roomsName.salonAquitter][i].id == user.id){
+                if(listeUsers[roomsName.salonAquitter][i].id == user._id){
                     listeUsers[roomsName.salonAquitter].splice(i, 1);
                 };
             };
@@ -492,8 +492,8 @@ ioTchat.on('connection', function(socket){
         });
     // on cas de déconnection on le supprime de la liste des connectés de la room, on informe le user et les autres
         socket.on('creationRoomPrivee', function(userCible){
-            var nomRoomPrivee = userCible.id + '-' + user.id;
-            var inversedNomRoomPrivee = user.id + '-' + userCible.id;
+            var nomRoomPrivee = userCible.id + '-' + user._id;
+            var inversedNomRoomPrivee = user._id + '-' + userCible.id;
             var salonExiste = false;
             if(listeUsers.hasOwnProperty(nomRoomPrivee)){
                 salonExiste = true;
@@ -580,7 +580,7 @@ ioTchat.on('connection', function(socket){
             for(var uneListe in listeUsers){
                 if(listeUsers.hasOwnProperty(uneListe)){
                     for(var i=0; listeUsers[uneListe][i]; i++){
-                        if(listeUsers[uneListe][i].id == user.id){
+                        if(listeUsers[uneListe][i].id == user._id){
                             listeUsers[uneListe].splice(i,1);
                             socket.leave(uneListe);
                             socket.to(uneListe).emit('decoUser', user);

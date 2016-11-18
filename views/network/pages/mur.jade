@@ -49,7 +49,7 @@ block contentNetwork
     .row
         col-xs-12.col-md-offset-2.col-md-8.text-left
             h1 Bienvenue chez #{profil.pseudo} !
-    if(user.id == profil._id || profil.isFriend)
+    if(user._id == profil._id || profil.isFriend)
         .row
             col-xs-12.col-md-offset-2.col-md-8.text-left.formArticles
                 h2 Ecrire un post !
@@ -69,7 +69,7 @@ block contentNetwork
                 isFriend: '!{profil.isFriend}'
             };
             var user = {
-                id: '!{user.id}',
+                id: '!{user._id}',
                 pseudo: '!{user.pseudo}',
                 photoProfil: '!{user.photoProfil}'
             };
@@ -81,7 +81,7 @@ block contentNetwork
                 isFriend: '!{profil.isFriend}'
             };
             var user = {
-                id: '!{user.id}',
+                id: '!{user._id}',
                 pseudo: '!{user.pseudo}'
             };
     script(type='text/javascript', src='../../javascripts/nicEdit.js')

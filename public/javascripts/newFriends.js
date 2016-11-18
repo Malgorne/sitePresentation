@@ -93,6 +93,7 @@ $(document).ready(function(){
 // BOUTON AJOUTER AMI
     var clickAddFriend = function(object){
         $(object).click(function(ev){
+            console.log(friendId)
             var friendId = $(object).attr('id');
             friendId = friendId.split('-')[1];
             socket.emit('addFriend', friendId);

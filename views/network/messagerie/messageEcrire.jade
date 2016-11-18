@@ -40,14 +40,14 @@ block contentNetwork
     if(user.photoProfil)
         script.
             var user = {
-                id: '!{user.id}',
+                id: '!{user._id}',
                 pseudo: '!{user.pseudo}',
                 photoProfil: '!{user.photoProfil}'
             };
     else
         script.
             var user = {
-                id: '!{user.id}',
+                id: '!{user._id}',
                 pseudo: '!{user.pseudo}'
             };
     script(type='text/javascript', src='../../javascripts/nicEdit.js')

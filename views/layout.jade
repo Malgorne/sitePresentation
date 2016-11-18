@@ -3,11 +3,17 @@ html(lang='',ng-app='fritzSolutions')
     head
         meta(charset='UTF-8')
         title Benjamin FRITZ, Développeur Intégrateur Web
-        if user && (user.droits == 'god' || user.droits == 'demiGod' || titre == 'network')
+        if user && (user.droits == 'god' || user.droits == 'demiGod')
             link(rel='stylesheet', type='text/css', href='../../stylesheets/bootstrap.min.css')
             link(rel='stylesheet', type='text/css', href='../../stylesheets/style.css')
             script(type='text/javascript', src='../../javascripts/jquery-1.12.3.js')
             script(type='text/javascript', src='../../javascripts/sitePerso.js')
+        else if (titre == 'network' || titre == 'renvoiMdp')
+            link(rel='stylesheet', type='text/css', href='../../stylesheets/bootstrap.min.css')
+            link(rel='stylesheet', type='text/css', href='../../stylesheets/style.css')
+            script(type='text/javascript', src='../../javascripts/jquery-1.12.3.js')
+            script(type='text/javascript', src='../../javascripts/sitePerso.js')
+        
         else
             link(rel='stylesheet', type='text/css', href='../stylesheets/bootstrap.min.css')
             link(rel='stylesheet', type='text/css', href='../stylesheets/style.css')

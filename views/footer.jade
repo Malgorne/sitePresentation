@@ -2,7 +2,9 @@ footer
     .container
         .col-xs-12.col-md-offset-2.col-md-10
             .col-xs-12.col-md-3
-                if user && (user.droits == 'god' || user.droits == 'demiGod' || titre == 'network')
+                if user && (user.droits == 'god' || user.droits == 'demiGod')
+                    img(src='../../images/footer/tel.png', alt='Icone téléphone')
+                else if (titre == 'network' || titre == 'renvoiMdp')
                     img(src='../../images/footer/tel.png', alt='Icone téléphone')
                 else
                     img(src='../images/footer/tel.png', alt='Icone téléphone')
@@ -11,7 +13,9 @@ footer
                     br
                     |                 06.45.26.45.90
             .col-xs-12.col-md-3
-                if user && (user.droits == 'god' || user.droits == 'demiGod' || titre == 'network')
+                if user && (user.droits == 'god' || user.droits == 'demiGod')
+                    img(src='../../images/footer/mail.png', alt='Icone mail')
+                else if (titre == 'network' || titre == 'renvoiMdp')
                     img(src='../../images/footer/mail.png', alt='Icone mail')
                 else
                     img(src='../images/footer/mail.png', alt='Icone mail')
@@ -39,6 +43,7 @@ footer
     if user && (user.droits == 'god' || user.droits == 'demiGod')
         script(type='text/javascript', src='../../javascripts/angular.min.js')
         script(type='text/javascript', src='../../javascripts/formAngular.js')
+        
     else
         script(type='text/javascript', src='../javascripts/angular.min.js')
         script(type='text/javascript', src='../javascripts/formAngular.js')

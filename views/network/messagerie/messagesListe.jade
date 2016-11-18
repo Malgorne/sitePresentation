@@ -45,7 +45,7 @@ block contentNetwork
                                 if(message.dataType != 'demandeAmis')
                                     input.selectedInputs.col-xs-9(type="checkbox" name="message-#{message.id}")
                                 else
-                                    if(user.id != message.envoyeParId)
+                                    if(user._id != message.envoyeParId)
                                         input.selectedInputs.col-xs-9(type="checkbox" name="message-#{message.id}")
                             td.tdMessages.text-left #{message.envoyeParPseudo}
                             td.tdMessages.text-left #{message.recuParPseudo}
@@ -56,14 +56,14 @@ block contentNetwork
     if(user.photoProfil)
         script.
             var user = {
-                id: '!{user.id}',
+                id: '!{user._id}',
                 pseudo: '!{user.pseudo}',
                 photoProfil: '!{user.photoProfil}'
             };
     else
         script.
             var user = {
-                id: '!{user.id}',
+                id: '!{user._id}',
                 pseudo: '!{user.pseudo}'
             };
     script(type='text/javascript', src="/socket.io/socket.io.js")

@@ -99,13 +99,19 @@ $(document).ready(function(){
     });
     
     var clickTdMessages = function(object){
+        console.log('ligne 102 - object')
+        console.log(object)
         $(object).click(function(ev){
             var messageId = $(object).parent().attr('id');
             messageId = messageId.split('-')[1];
             var messageType = $(object).parent().attr('data-type');
             var messageEmeteurId = $(object).parent().attr('id').split('-')[2];
+            console.log('ligne 109 messageEmeteurId')
+            console.log(messageEmeteurId)
             socket.emit('lectureMessage', {messageId: messageId, messageType: messageType, messageEmeteurId: messageEmeteurId});
             socket.on('lectureMessageConfirmed', function(data){
+                console.log('ligne 113 - data')
+                console.log(data)
                 window.location.href = data.destination;
             });
         });
@@ -165,17 +171,14 @@ $(document).ready(function(){
     });
     
     $('#supMessage').click(function(ev){
-        var messageSupId = $('#supMessage').attr('href').split('-')[2];
-        console.log($('#supMessage').attr('href'));
-        console.log(messageSupId);
         socket.emit('supMessage', $('#supMessage').attr('href').split('-')[2]);
         return false;
     });
     
     socket.on('supMessageSaved', function(destination){
-        console.log('dans le saved')
         window.location.href = destination;
     });
+    
     $('#repMessage').click(function(ev){
     // contient 1- 'rep-' / 2- idMessage / 3- idEmetteur
         var refMessage = $('#repMessage').attr('href');
