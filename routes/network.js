@@ -76,44 +76,53 @@ router.get('/mur/:profilDemande', function(req, res, next){
             if(result.listePosts){
                 profil.listePosts = result.listePosts;
             };
-            if(result.articlesProfil && result.articlesProfil.length){
-                profil.articlesProfil = [];
-                for(var i=0; result.articlesProfil[i]; i++){
-                    result.articlesProfil[i].auteurPseudo = ent.decode(result.articlesProfil[i].auteurPseudo);
-                    result.articlesProfil[i].contenu = ent.decode(result.articlesProfil[i].contenu);
-                    var spanEditionArticle = '<div class="row text-center spanArticle"></div>';
-                    if(profil._id == req.session.user._id || result.articlesProfil[i].auteurId == req.session.user._id || profil.isFriend || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
-                        spanEditionArticle = '<div class="row text-center spanArticle"><a id="rep-'+ result.articlesProfil[i].id +'" class="repArticle" href="#'+ result.articlesProfil[i].id +'">Répondre</a>';
-                        if(result.articlesProfil[i].auteurId == req.session.user._id){
-                            spanEditionArticle+='<a id="edit-'+ result.articlesProfil[i].id +'" class="editArticle" href="#'+ result.articlesProfil[i].id +'">Edition</a>';
-                        };
-                        if(result.articlesProfil[i].auteurId == req.session.user._id || profil._id == req.session.user._id || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
-                            spanEditionArticle+='<a id="sup-'+ result.articlesProfil[i].id +'" class="supArticle" href="#'+ result.articlesProfil[i].id +'">Suppression</a>';
-                        };
-                        spanEditionArticle+='</div>';
-                    };
-                    if(result.articlesProfil[i].reponses){
-                        var listeDivReponses='';
-                        for(var j = 0; result.articlesProfil[i].reponses[j]; j++){
-                            var objetReponse = result.articlesProfil[i].reponses[j];
-                            if(objetReponse){
-                                var reponseCourante = '<div id="'+ objetReponse.id +'" class="row reponseArticle"><p class="col-xs-12 dateReponse">Message posté le : ' + moment(objetReponse.id).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ objetReponse.auteurPseudo + ' a écrit:</p><p>' + ent.decode(objetReponse.contenu) + '</p>';
-                                if(profil._id == req.session.user._id || req.session.user._id == objetReponse.auteurId || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
-                                    reponseCourante+='<p><a id="supRep-'+ objetReponse.id +'" class="supReponse" href="#'+ result.articlesProfil[i].id +'" title="supprimer Réponse">Supprimer</a></p>';
-                                } else {
-                                    reponseCourante+='</div>';
-                                };
-                                listeDivReponses+=reponseCourante;
+            var collectionArticles = db.get().collection('articles');
+            collectionArticles.find({"nouvelArticle.profilId": profil._id.toString()}).toArray(function(err, data){
+                if(data && data.length){
+                    profil.articlesProfil = [];
+                    for(var i=0; data[i]; i++){
+                        data[i].nouvelArticle.auteurPseudo = ent.decode(data[i].nouvelArticle.auteurPseudo);
+                        data[i].nouvelArticle.contenu = ent.decode(data[i].nouvelArticle.contenu);
+                        if(profil._id == req.session.user._id || data[i].nouvelArticle.auteurId == req.session.user._id || profil.isFriend || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
+                            var spanEditionArticle = '<div class="row text-center spanArticle"><p>';
+                            spanEditionArticle+= '<a id="rep-'+ data[i]._id +'" class="repArticle" href="#'+ data[i]._id +'">Répondre</a>';
+                            if(data[i].nouvelArticle.auteurId == req.session.user._id){
+                                
+                                spanEditionArticle+='<a id="edit-'+ data[i]._id +'" class="editArticle" href="#'+ data[i]._id +'">Edition</a>';
                             };
+                            if(data[i].nouvelArticle.auteurId == req.session.user._id || profil._id == req.session.user._id || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
+                                
+                                spanEditionArticle+='<a id="sup-'+ data[i]._id +'" class="supArticle" href="#'+ data[i]._id +'">Suppression</a>';
+                            };
+                            spanEditionArticle+='</p></div>';
                         };
-                        var articleAtransmettre = '<div id="'+ result.articlesProfil[i].id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(result.articlesProfil[i].dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ result.articlesProfil[i].auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ result.articlesProfil[i].id +'" class="row contenuArticle">' + ent.decode(result.articlesProfil[i].contenu) + '</div>' + spanEditionArticle + listeDivReponses +'</div>';
-                    } else {
-                        var articleAtransmettre = '<div id="'+ result.articlesProfil[i].id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(result.articlesProfil[i].dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ result.articlesProfil[i].auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ result.articlesProfil[i].id +'" class="row contenuArticle">' + ent.decode(result.articlesProfil[i].contenu) + '</div>' + spanEditionArticle;
+                        var listeDivReponses='';
+                        if(data[i].nouvelArticle.reponses && data[i].nouvelArticle.reponses.length){
+                            for(var j = 0; data[i].nouvelArticle.reponses[j]; j++){
+                                var objetReponse = data[i].nouvelArticle.reponses[j];
+                                if(objetReponse){
+                                    var reponseCourante = '<div id="'+ objetReponse.id +'" class="row reponseArticle"><p class="col-xs-12 dateReponse">Message posté le : ' + moment(objetReponse.id).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ objetReponse.auteurPseudo + ' a écrit:</p><p>' + ent.decode(objetReponse.contenu) + '</p>';
+                                    if(profil._id == req.session.user._id || req.session.user._id == objetReponse.auteurId || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
+                                        
+                                        reponseCourante+='<p><a id="supRep-'+ objetReponse.id +'" class="supReponse" href="#'+ data[i]._id +'" title="supprimer Réponse">Supprimer</a></p>';
+                                    };
+                                    reponseCourante+= '</div>';
+                                    listeDivReponses+=reponseCourante;
+                                };
+                            };
+                            if(spanEditionArticle){
+                                var articleAtransmettre = '<div id="'+ data[i]._id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(data[i].nouvelArticle.dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ data[i].nouvelArticle.auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ data[i]._id +'" class="row contenuArticle">' + ent.decode(data[i].nouvelArticle.contenu) + '</div>' + spanEditionArticle + listeDivReponses + '</div>';
+                            } else {
+                                var articleAtransmettre = '<div id="'+ data[i]._id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(data[i].nouvelArticle.dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ data[i].nouvelArticle.auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ data[i]._id +'" class="row contenuArticle">' + ent.decode(data[i].nouvelArticle.contenu) + '</div>' + listeDivReponses + '</div>';
+                            };
+                        } else {
+                            var articleAtransmettre = '<div id="'+ data[i]._id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(data[i].nouvelArticle.dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ data[i].nouvelArticle.auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ data[i]._id +'" class="row contenuArticle">' + ent.decode(data[i].nouvelArticle.contenu) + '</div>'+ spanEditionArticle;
+                        };
+                        profil.articlesProfil.unshift(articleAtransmettre);
                     };
-                    profil.articlesProfil.unshift(articleAtransmettre);
                 };
-            };
-            res.render('network/pages/mur.jade', {titre: "network", user: req.session.user, profil: profil, moment: moment});
+                res.render('network/pages/mur.jade', {titre: "network", user: req.session.user, profil: profil, moment: moment});
+            });
         };
     });
 });
@@ -126,7 +135,6 @@ router.get('/messagerie/own', function(req, res, next){
             for(var i = 0; profil.demandesAmis[i]; i++){
                 var demande = profil.demandesAmis[i];
                 if(profil.demandesAmis[i].statut != 'efface'){
-                    console.log(demande)
                     var message = {
                         id: demande.id,
                         envoyeParId: new ObjectID(demande.demandeur.id),
@@ -148,7 +156,6 @@ router.get('/messagerie/own', function(req, res, next){
                 };
             };
         };
-        
         if(profil.listeMessages.length){
             for(var i = 0; profil.listeMessages[i]; i++){
                 var data = profil.listeMessages[i];
@@ -204,7 +211,7 @@ router.post('/messagerie/envoi', function(req, res, next){
                 });
             } else {
                 res.render('network/messagerie/messageEcrire.jade',{titre: 'network', user: req.session.user, moment: moment, message: 'Une erreur est survenue, merci de recommencer'});
-            }
+            };
         });
     } else {
         res.render('network/messagerie/messageEcrire.jade',{titre: 'network', user: req.session.user, moment: moment, message: 'Une erreur est survenue, merci de recommencer'});
@@ -239,7 +246,6 @@ router.get('/messagerie/:messageDemande', function(req, res, next){
                                 if(result.demandesAmis[i].demandeur.photoProfil){
                                     message.contenu.photoDemandeur = result.demandesAmis[i].demandeur.photoProfil
                                 };
-
                             };
                         };
                     };
@@ -283,10 +289,8 @@ router.get('/newFriends/list', function(req, res, next){
         for(var i=0; data[i]; i++){
             if(data[i].demandesAmis){
                 for(var j=0; data[i].demandesAmis[j]; j++){
-                    if(data[i].demandesAmis[j].demandeur.id == req.session.user._id || data[i].demandesAmis[j].userCible._id == new ObjectID(req.session.user._id)){
+                    if(data[i].demandesAmis[j].demandeur.id == req.session.user._id || data[i].demandesAmis[j].userCible._id == req.session.user._id){
                         data[i].isEnCours = true;
-                    } else {
-                        data[i].isEnCours = false;
                     };
                 };
             };

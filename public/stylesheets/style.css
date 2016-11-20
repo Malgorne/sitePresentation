@@ -529,6 +529,10 @@ footer img{
 
 /* ADMIN */
 
+.liArticlesModerate, .liRepModerate, .liMessagesModerate, .liPostsModerate{
+    border-bottom: solid 1px black;
+}
+
 #h2ArticlesModerate{
     margin-bottom: 20px;
     text-decoration: underline;

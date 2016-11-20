@@ -101,10 +101,8 @@ $(document).ready(function(){
 // SUPPRESSION articles
     var clickSup = function(object){
         $(object).click(function(ev){
-            if($('form').length<2){
-                var articleId = $(object).parent().parent().attr('id');
-                socket.emit('supArticle', articleId);
-            };
+            var articleId = $(object).attr('id').split('-')[1];
+            socket.emit('supArticle', articleId);
             socket.on('supArticleSaved', function(data){
                 $('#'+data).remove();
             });
@@ -162,8 +160,6 @@ $(document).ready(function(){
     };
     socket.on('repArticleSaved', function(reponseSaved){
         $('#'+reponseSaved.idArticle).append(reponseSaved.divReponse).ready(function(){
-            console.log("$('#supRep-'+reponseSaved.idArticle)")
-            console.log($('#supRep-'+reponseSaved.idArticle))
             $('#formRepArticle-'+reponseSaved.idArticle).remove()
             $('#spanRep-'+reponseSaved.idArticle).remove();
             clickEdit($('#edit-'+reponseSaved.idArticle));
@@ -173,14 +169,10 @@ $(document).ready(function(){
         });
     });
     var clickSupRep = function(object){
-        console.log('avant le click')
-        console.log(object)
         $(object).click(function(ev){
-            if($('form').length<2){
                 var reponseId = $(object).parent().parent().attr('id');
                 var articleId = $(object).parent().parent().parent().attr('id');
                 socket.emit('supReponse', {reponseId: reponseId, articleId: articleId});
-            };
             socket.on('supReponseSaved', function(data){
                 $('#'+data.reponseId).remove();
                 clickEdit($('#edit-'+data.idArticle));

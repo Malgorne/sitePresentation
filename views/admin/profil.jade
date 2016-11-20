@@ -55,31 +55,96 @@ block content
                 ul#ulArticlesModerate.col-xs-12
                     each article in listeArticles
                         li.row.liArticlesModerate(id="art-#{article._id}")
+                            p.col-xs-12 Le #{moment(article.nouvelArticle.dateCreation).format("DD-MM-YYYY")}
                             p.col-xs-12 #{article.nouvelArticle.auteurPseudo} a écrit :
-                            p.col-xs-12 le #{moment(article.nouvelArticle.dateCreation).format("DD-MM-YYYY")}
                             p.col-xs-12 #{article.nouvelArticle.contenu}
                             p.col-xs-10 sur le mur de #{article.nouvelArticle.profilPseudo}
-                            a.btn.rose.col-xs-2(href='/admin/moderationArticle/#{article._id}') MODERER
-                        if(article.nouvelArticle.reponses.length)
-                            ul#ulReponsesModerate
-                                each reponse in article.nouvelArticle.reponses
-                                    li.row(id="rep-#{reponse.id}")
-                                        p.col-xs-12 #{reponse.auteurPseudo} a répondu :
-                                        p.col-xs-10 #{reponse.contenu}
-                                        a.btn.rose.col-xs-2(href='/admin/moderationReponse/#{reponse.id}') MODERER
-                        else
-                            p Il n'y a pas encore de réponse
+                            a.modeArticle.btn.btn-warning.btn-lg.col-xs-2(href='#{article._id}') MODERER
+                            if(article.nouvelArticle.reponses && article.nouvelArticle.reponses.length)
+                                ul#ulReponsesModerate
+                                    each reponse in article.nouvelArticle.reponses
+                                        li.col-xs-12.liRepModerate(id="rep-#{reponse.id}")
+                                            p.col-xs-12 #{reponse.auteurPseudo} a répondu :
+                                            p.col-xs-10 #{reponse.contenu}
+                                            a.modeReponse.btn.btn-warning.btn-lg.col-xs-2(href='#{reponse.id}') MODERER
+                            else
+                                p Il n'y a pas encore de réponse.
             else
                 p Il n'y a pas encore d'article sur ce profil
-                                
-                                
-
-
-                                
-                                
-                                
-                                
-                                
-                                
-                                
+    .row
+        .col-xs-12.col-md-offset-3.col-md-6.text-left
+            h2#h2MessagesModerate Liste des messages privés:
+            if(profil.listeMessages && profil.listeMessages.length)
+                ul#ulMessagesModerate.col-xs-12
+                    each mp in profil.listeMessages
+                        if(mp.dataType == 'messagePrive')
+                            li.row.liMessagesModerate(id="mess-#{mp.id}")
+                                p.col-xs-12 Le #{moment(mp.date).format("DD-MM-YYYY")}
+                                p.col-xs-12 #{mp.envoyeParPseudo} a envoyé ce message à #{mp.recuParPseudo} :
+                                p.col-xs-10 #{mp.contenu}
+                                a.modeMessage.btn.btn-warning.btn-lg.col-xs-2(href='#{mp.id}') MODERER
+            else
+                p La messagerie de cet utilisateur est vide.
+    .row
+        .col-xs-12.col-md-offset-3.col-md-6.text-left
+            h2#h2PostsModerate Liste des posts sur le forum:
+            if(listePosts)
+                ul#ulPostsModerate.col-xs-12
+                    each post in listePosts
+                        li.row.liPostsModerate(id="post-#{post._id}")
+                            p.col-xs-12 #{post.auteurPseudo} a écrit :
+                            p.col-xs-12 le #{moment(post.dateCreation).format("DD-MM-YYYY")}
+                            p.col-xs-12 #{post.contenu}
+                            p.col-xs-10 sur le mur de #{post.profilPseudo}
+                            a.modePost.btn.btn-warning.btn-lg.col-xs-2(href='#{post._id}') MODERER
+            else
+                p Cet utilisateur n'a encore rien posté sur le forum.
+    .row
+        .col-xs-12.col-md-offset-3.col-md-6
+            h2#h2Droits Changement des droits :
+            p#pDroits #{profil.pseudo} a les droits : #{profil.droits}
+            form#formDroits(method='post', action='/admin/changementDroits')
+                .col-xs-8
+                    select#selectDroits.form-control
+                        if(profil.droits == 'user')
+                            option.text-center(selected='true') user
+                        else
+                            option.text-center user
+                            
+                        if(profil.droits == 'demiGod')
+                            option.text-center(selected='true') demiGod
+                        else
+                            option.text-center demiGod
+                        if(user.droits == 'god')
+                            if(profil.droits == 'god')
+                                option.text-center(selected='true') god
+                            else
+                                option.text-center god
+                input.btn.btn-success.btn-lg.col-xs-4(type='submit', value='CHANGER')
+                
+        .col-xs-12.col-md-offset-3.col-md-6
+            h2#h2Avertissements Avertissements :
+            if(profil.avertissements)
+                p#pAvertissements #{profil.pseudo} a déjà #{profil.avertissements}. Le dernier a été donné le #{moment(dernierAvertissement).format("DD-MM-YYYY")}
+            else
+                p#pAvertissements C'est un utilisateur sage! Il n'a pas encore eu d'avertissement.
+            p
+                a.modeAvert.col-xs-6.btn.btn-success.btn-lg(href='supA-#{profil._id}', title='supprimer un avertissement #{profil.pseudo}') SUPPRIMER un avertissement
+                a.modeAvert.col-xs-6.btn.btn-warning.btn-lg(href='addA-#{profil._id}', title='ajouter un avertissement #{profil.pseudo}') AJOUTER un avertissement
+        .col-xs-12.col-md-offset-3.col-md-6
+            a#bannirUser.col-xs-12.btn.btn-danger.btn-lg(href='/admin/bannir/#{profil._id}', title='bannir #{profil.pseudo}') BANNIR #{profil.pseudo}
+    script.
+        var user = {
+            id: '!{user._id}',
+            pseudo: '!{user.pseudo}'
+        };
+        var profil = {
+            id: '!{profil._id}',
+            pseudo: '!{profil.pseudo}',
+            mail: '!{profil.mail}',
+            avertissements: '!{profil.avertissements}'
+        }
+    script(type='text/javascript', src="/socket.io/socket.io.js")
+    script(type='text/javascript') var socket = io('http://localhost:3001')
+    script(type='text/javascript', src='../../javascripts/admin.js')
     include ../footer.jade

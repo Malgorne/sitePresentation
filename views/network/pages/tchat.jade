@@ -42,7 +42,7 @@ block contentNetwork
             
     script.
         var user = {
-            id: '!{user.id}',
+            id: '!{user._id}',
             pseudo: '!{user.pseudo}'
         };
     script(type='text/javascript', src='../../javascripts/nicEdit.js')

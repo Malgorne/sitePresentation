@@ -14,7 +14,7 @@ function restriction(req, res, next){
     if(!req.session){
         res.render('users/connection.jade', { title: 'Connection', message: 'Tu dois te connecter pour aller là!'});
     } else {
-        if(req.session && req.session.user && req.session.user.droits != 'god'){
+        if(req.session.user && req.session.user.droits != 'god'){
             if(req.session.user.droits != 'demiGod'){
                 res.render('/', {title: 'Accueil', message: req.session.user.pseudo + ', il te faut avoir des super-pouvoirs pour accéder à cette partie du site!', user: req.session.user, moment: moment});
             };
@@ -25,11 +25,98 @@ function restriction(req, res, next){
 
 router.use(restriction);
 
+router.get('/user/:profil', function(req, res, next){
+    var collection = db.get().collection('users');
+    var collectionMessages = db.get().collection('articles');
+    var profilId = req.params.profil;
+    if(req.session.user && req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
+// on va chercher le user managé
+        collection.findOne({_id: new ObjectID(profilId)}, {mdp:0}, function(err, result){
+            console.log(result)
+            if(result){
+// on affiche la liste des articles et réponses faites par le user
+                var listeArticles = [];
+                collectionMessages.find({"nouvelArticle.auteurId": profilId}).toArray(
+                    function(err, data){
+                    res.render('admin/profil.jade', {title: 'Gestion: ' + result.pseudo, user: req.session.user, profil: result, listeArticles: data, moment: moment});
+                })
+            };
+        });
+    };
+});
+
+router.get('/bannir/:profil', function(req, res, next){
+    var profilId = req.params.profil;
+    var collectionUsers = db.get().collection('users');
+    var collectionMessages = db.get().collection('articles');
+    if(req.session.user && req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
+// on remove le profil
+// on remove le profil des listes d'amis
+// on remove le profil des listes de demande d'amis
+
+// on remove les messages émits du profil
+
+// on remove les articles du profil
+// on remove les reponses postees par le profil
+
+        var queryRemoveListes = {$pull: {$or: [{listeAmis: {_id: new ObjectID(profilId)}}, {"demandesAmis.demandeur.id": profilId}, {"demandesAmis.userCible._id": new ObjectID(profilId)}]}};
+
+        var queryRemoveArticles = {$or:[{"nouvelArticle.auteurId": profilId}, {"nouvelArticle.profilId": profilId}]};
+        {listeAmis: {_id: new ObjectID(user.id)}}
+        var queryRemoveReponses= {$pull: {reponses: {auteurId: profilId}}};
+        
+        collectionUsers.findOne({_id: new ObjectID(profilId)}, function(err, profil){
+            if(!err && profil && profil.avertissements >3 ){
+            // on remove le user
+                collectionUsers.remove({_id: new ObjectID(profilId)}, function(err, result){
+            // on remove les articles
+                    if(!err){
+                        collectionMessages.remove({$or:[{"nouvelArticle.auteurId": profilId}, {"nouvelArticle.profilId": profilId}]}, {multi: true}, function(err, result){
+                            console.log(err)
+                            console.log('SECOND result')
+                            console.log(result)
+            // on update les reponses
+                            if(!err){
+                                collectionMessages.update({}, queryRemoveReponses, {multi: true}, function(err, result){
+                            console.log(err)
+                                    console.log('TROISIEME result')
+                                    console.log(result)
+            // on update sa presence dans toutes les listes des autres
+                                    if(!err){
+                                        collectionUsers.update({}, queryRemoveListes, {multi: true}, function(err, result){
+                            console.log(err)
+                                            console.log('QUATRIEME result')
+                                            console.log(result)
+                                            collectionUsers.find().toArray(function(err, data){
+                            console.log(err)
+                                                if(!err){
+                                                    var listeUsers = [];
+                                                    for(var i=0; data[i]; i++){
+                                                        if(data[i].droits != 'god'){
+                                                            listeUsers.push(data[i]);
+                                                        };
+                                                    };
+                                                    res.render('admin/listeUsers.jade', {title: 'Administration des utilisateurs', user: req.session.user, listeUsers: listeUsers, moment: moment});
+                                                }
+                                            })
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    }
+    
+});
+
 router.get('/listeUsers', function(req, res, next){
     var collection = db.get().collection('users');
     var title = 'Administration des utilisateurs';
     var user = req.session.user;
-    collection.find().toArray( function(err, data){
+    collection.find().toArray(function(err, data){
         if(err){
             res.render('admin/listeUsers.jade', {title: title, message: 'Quelque chose s\'est mal passé, merci de réessayer!', user: user, data: data})
         } else {
@@ -39,34 +126,14 @@ router.get('/listeUsers', function(req, res, next){
                     listeUsers.push(data[i]);
                 };
             };
-            res.render('admin/listeUsers.jade', {title: title, user: user, listeUsers: listeUsers, moment: moment})
+            res.render('admin/listeUsers.jade', {title: title, user: user, listeUsers: listeUsers, moment: moment});
         };
     });
 });
 
-router.get('/user/:profil', function(req, res, next){
-    var collection = db.get().collection('users');
-    var collectionMessages = db.get().collection('articles');
-    var profilId = req.params.profil;
-    if(req.session.user && req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
-        collection.findOne({_id: new ObjectID(profilId)}, {mdp:0}, function(err, result){
-            if(result){
-                var listeArticles = [];
-                collectionMessages.find({"nouvelArticle.auteurId": profilId}).toArray(
-                    function(err, data){
-                    console.log(data)
-                    res.render('admin/profil.jade', {title: 'Gestion: ' + result.pseudo, user: req.session.user, profil: result, listeArticles: data, moment: moment});
-                })
-            };
-        });
-    };
-});
-
 router.post('/user/traitementEdition', function(req, res, next){
     var collection = db.get().collection('users');
-    collection.updateOne({pseudo: ent.encode(req.body.pseudoUserManaged)},
-                        {$set: {droits: req.body.droitsUserManaged}},
-                        function(err, result){
+    collection.updateOne({pseudo: ent.encode(req.body.pseudoUserManaged)}, {$set: {droits: req.body.droitsUserManaged}}, function(err, result){
         collection.findOne({pseudo: ent.encode(req.body.pseudoUserManaged)}, function(err, result){
             if(err){
                 var decodeUser = {
@@ -95,22 +162,20 @@ router.get('/user/suppression', function(req, res, next){
     var params = querystring.parse(url.parse(req.url).query);
     var collection = db.get().collection('users');
     collection.deleteOne({pseudo: ent.encode(params.pseudoUser)}, function(err, result){
-                                        if (err) {
-                                            res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: 'Oops, quelque chose s\'est mal passé! merci de réessayer!', user: req.session.user});
-                                        } else {
-                                            collection.find().toArray(
-                                                function(err, data){
-                                                    var user = req.session.user;
-                                                    if(err){
-                                                        res.render('admin/listeUsers.jade', {title: title, message: 'Quelque chose s\'est mal passé, merci de réessayer!', user: user, data: data})
-                                                    } else {
-                                                        var listeUsers = data;
-                                                        res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: 'Suppression Réussie!', user: req.session.user, listeUsers: listeUsers, moment: moment});
-                                                    };
-                                                }
-                                            );
-                                        };
-                                    });
+        if (err) {
+            res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: 'Oops, quelque chose s\'est mal passé! merci de réessayer!', user: req.session.user});
+        } else {
+            collection.find().toArray(function(err, data){
+                var user = req.session.user;
+                if(err){
+                    res.render('admin/listeUsers.jade', {title: title, message: 'Quelque chose s\'est mal passé, merci de réessayer!', user: user, data: data})
+                } else {
+                    var listeUsers = data;
+                    res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: 'Suppression Réussie!', user: req.session.user, listeUsers: listeUsers, moment: moment});
+                };
+            });
+        };
+    });
 });
 
 router.get('/suppressionInactifs', function(req, res, next){

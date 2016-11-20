@@ -11,6 +11,12 @@
 
 {$push: { "reponses": reponse }}
 
+
+
+{ $pull: { "nouvelArticle.reponses": {id: Number(data.1479566679093)}} }
+
+
+db.articles.update({"nouvelArticle.reponses": {$elemMatch: {id: Number(1479566679093)}}}, { $pull: { "nouvelArticle.reponses": {id: Number(data.1479566679093)}} })
 // resultat
 
 {$push:{ "articlesProfil.$.reponses": reponse }}

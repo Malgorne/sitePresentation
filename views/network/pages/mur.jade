@@ -87,6 +87,6 @@ block contentNetwork
     script(type='text/javascript', src='../../javascripts/nicEdit.js')
     script(type='text/javascript') bkLib.onDomLoaded(nicEditors.allTextAreas);
     script(type='text/javascript', src="/socket.io/socket.io.js")
-    script(type='text/javascript') var socket = io('http://localhost:3001')
+    script(type='text/javascript') var socket = io('ws://localhost:3001')
     script(type='text/javascript', src='../../javascripts/networkMurs.js')
     include ../../footer.jade

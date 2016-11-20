@@ -128,7 +128,6 @@ ioArticlesMurs.on('connection', function(socket){
     socket.on('consultationProfil', function(data){
         var profil = data.profil;
         var user = data.user;
-        var collectionUsers = db.get().collection('users');
         var collectionArticles = db.get().collection('articles');
         socket.on('nouvelArticle', function(article){
             var nouvelArticle = {
@@ -142,26 +141,16 @@ ioArticlesMurs.on('connection', function(socket){
             collectionArticles.insert({nouvelArticle: nouvelArticle}, function(err){
                 if(!err){
                     collectionArticles.find().toArray(function(err, data){
-                        var i = data.length-1;
-                        nouvelArticle.id = data[i]._id;
-                        collectionUsers.updateOne({_id: new ObjectID(profil.id)}, {$push: { articlesProfil: nouvelArticle }}, function(err){
-                            if(!err){
-                                var articleAtransmettre = '<div id="'+ nouvelArticle.id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(nouvelArticle.dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ nouvelArticle.auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ nouvelArticle.id +'" class="row contenuArticle">' + ent.decode(nouvelArticle.contenu) + '</div><div class="row text-center spanArticle"><a id="edit-'+ nouvelArticle.id +'" class="editArticle" href="#'+ nouvelArticle.id +'">Edition</a><a id="sup-'+ nouvelArticle.id +'" class="supArticle" href="#'+ nouvelArticle.id +'">Suppression</a><a id="rep-'+ nouvelArticle.id +'" class="repArticle" href="#'+ nouvelArticle.id +'">Répondre</a></div></div>';
-                                if(profil.id != user.id){
-                                    collectionUsers.updateOne({_id: new ObjectID(user.id)}, {$push: { articlesPostes: nouvelArticle }}, function(err){
-                                        if(!err){
-                                            socket.emit('nouvelArticleSaved', {nouvelArticle: articleAtransmettre, idArticle: nouvelArticle.id});
-                                        };
-                                    });
-                                } else {
-                                    if(!err){
-                                        socket.emit('nouvelArticleSaved', {nouvelArticle: articleAtransmettre, idArticle: nouvelArticle.id});
-                                    };
-                                };
-                            };
-                        });
+                        if(!err){
+                            var i = data.length-1;
+                            nouvelArticle.id = data[i]._id;
+
+                            var articleAtransmettre = '<div id="'+ nouvelArticle.id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(nouvelArticle.dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ nouvelArticle.auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ nouvelArticle.id +'" class="row contenuArticle">' + ent.decode(nouvelArticle.contenu) + '</div><div class="row text-center spanArticle"><a id="edit-'+ nouvelArticle.id +'" class="editArticle" href="#'+ nouvelArticle.id +'">Edition</a><a id="sup-'+ nouvelArticle.id +'" class="supArticle" href="#'+ nouvelArticle.id +'">Suppression</a><a id="rep-'+ nouvelArticle.id +'" class="repArticle" href="#'+ nouvelArticle.id +'">Répondre</a></div></div>';
+
+                            socket.emit('nouvelArticleSaved', {nouvelArticle: articleAtransmettre, idArticle: nouvelArticle.id});
+                        };
                     });
-                };
+                }
             });
         });
         socket.on('editArticle', function(article){
@@ -174,65 +163,37 @@ ioArticlesMurs.on('connection', function(socket){
                     console.log('dans lerreur');
                     console.log(err);
                 } else {
-                    collectionUsers.updateOne({articlesProfil: {$elemMatch: {id: new ObjectID(articleEdite.id)}}}, {$set:{ "articlesProfil.$.contenu": articleEdite.contenu }}, function(err2, result2){
-                        if(err2){
-                            console.log('dans lerreur');
-                            console.log(err2);
-                        } else {
-                            collectionUsers.updateOne({articlesPostes: {$elemMatch: {id: new ObjectID(articleEdite.id)}}}, {$set:{ "articlesPostes.$.contenu": articleEdite.contenu }}, function(err3, result3){
-                                if(err3){
-                                    console.log('dans lerreur');
-                                    console.log(err2);
-                                } else {
-                                    collectionArticles.findOne({_id: new ObjectID(articleEdite.id)}, function(err4, article){
-                                        if(article){
-                                            if(article.nouvelArticle.reponses && article.nouvelArticle.reponses.length){
-                                                var listeDivReponses='';
-                                                for(var i=0; article.nouvelArticle.reponses[i]; i++){
-                                                    var objetReponse = article.nouvelArticle.reponses[i];
-                                                    if(objetReponse){
-                                                        var reponseCourante = '<div id="'+ objetReponse.id +'" class="row reponseArticle"><p class="col-xs-12 dateReponse">Message posté le : ' + moment(objetReponse.id).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ objetReponse.auteurPseudo + ' a écrit:</p><p>' + ent.decode(objetReponse.contenu) + '</p><p><a id="supRep-'+ objetReponse.id +'" class="supReponse" href="#'+ objetReponse.articleId +'" title="supprimer Réponse">Supprimer</a></p></div>';
-                                                        listeDivReponses += reponseCourante;
-                                                    };
-                                                };
-                                                var articleAtransmettre = '<div id="'+ article._id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(article.nouvelArticle.dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ article.nouvelArticle.auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ article._id +'" class="row contenuArticle">' + ent.decode(article.nouvelArticle.contenu) + '</div><div class="row text-center spanArticle"><a id="edit-'+ article._id +'" class="editArticle" href="#'+ article._id +'">Edition</a><a id="sup-'+ article._id +'" class="supArticle" href="#'+ article._id +'">Suppression</a><a id="rep-'+ article._id +'" class="repArticle" href="#'+ article._id +'">Répondre</a></div>'+ listeDivReponses +'</div>';
-                                            } else {
-                                                var articleAtransmettre = '<div id="'+ article._id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(article.nouvelArticle.dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ article.nouvelArticle.auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ article._id +'" class="row contenuArticle">' + ent.decode(article.nouvelArticle.contenu) + '</div><div class="row text-center spanArticle"><a id="edit-'+ article._id +'" class="editArticle" href="#'+ article._id +'">Edition</a><a id="sup-'+ article._id +'" class="supArticle" href="#'+ article._id +'">Suppression</a><a id="rep-'+ article._id +'" class="repArticle" href="#'+ article._id +'">Répondre</a></div></div>';
-                                            };
-                                            socket.emit('editArticleSaved', {divArticle: articleAtransmettre, idArticle: article._id});
-                                        };
-                                    });
+                    collectionArticles.findOne({_id: new ObjectID(articleEdite.id)}, function(err, article){
+                        if(!err && article){
+                            if(article.nouvelArticle.reponses && article.nouvelArticle.reponses.length){
+                                var listeDivReponses='';
+                                for(var i=0; article.nouvelArticle.reponses[i]; i++){
+                                    var objetReponse = article.nouvelArticle.reponses[i];
+                                    if(objetReponse){
+                                        var reponseCourante = '<div id="'+ objetReponse.id +'" class="row reponseArticle"><p class="col-xs-12 dateReponse">Message posté le : ' + moment(objetReponse.id).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ objetReponse.auteurPseudo + ' a écrit:</p><p>' + ent.decode(objetReponse.contenu) + '</p><p><a id="supRep-'+ objetReponse.id +'" class="supReponse" href="#'+ objetReponse.articleId +'" title="supprimer Réponse">Supprimer</a></p></div>';
+                                        listeDivReponses += reponseCourante;
+                                    };
+                                    var articleAtransmettre = '<div id="'+ article._id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(article.nouvelArticle.dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ article.nouvelArticle.auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ article._id +'" class="row contenuArticle">' + ent.decode(article.nouvelArticle.contenu) + '</div><div class="row text-center spanArticle"><a id="edit-'+ article._id +'" class="editArticle" href="#'+ article._id +'">Edition</a><a id="sup-'+ article._id +'" class="supArticle" href="#'+ article._id +'">Suppression</a><a id="rep-'+ article._id +'" class="repArticle" href="#'+ article._id +'">Répondre</a></div>'+ listeDivReponses +'</div>';
                                 };
-                            });
+                                
+                            } else {
+                                var articleAtransmettre = '<div id="'+ article._id +'" class="unArticle"><div class="row auteurArticle"><p class="col-xs-12 dateCreaArticle">Message posté le : ' + moment(article.nouvelArticle.dateCreation).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ article.nouvelArticle.auteurPseudo + ' a écrit:</p></div><div id="contenu-'+ article._id +'" class="row contenuArticle">' + ent.decode(article.nouvelArticle.contenu) + '</div><div class="row text-center spanArticle"><a id="edit-'+ article._id +'" class="editArticle" href="#'+ article._id +'">Edition</a><a id="sup-'+ article._id +'" class="supArticle" href="#'+ article._id +'">Suppression</a><a id="rep-'+ article._id +'" class="repArticle" href="#'+ article._id +'">Répondre</a></div></div>';
+                            };
+                            socket.emit('editArticleSaved', {divArticle: articleAtransmettre, idArticle: article._id});
                         };
                     });
                 };
             });
         });
         socket.on('supArticle', function(articleId){
-            collectionArticles.remove({_id: new ObjectID(articleId)}, function(err1, result1){
-                if(!err1){
-                    collectionUsers.updateOne({articlesProfil: {$elemMatch: {id: new ObjectID(articleId)}}}, { $pull: { "articlesProfil": { id: new ObjectID(articleId)} }}, function(err2, result2){
-                        if(!err2){
-                            collectionUsers.findOne({articlesPostes: {$elemMatch: {id: new ObjectID(articleId)}}}, function(err, result){
-                                if(result){
-                                    collectionUsers.updateOne({articlesPostes: {$elemMatch: {id: new ObjectID(articleId)}}}, { $pull: { "articlesPostes": { id: new ObjectID(articleId)} }}, function(err3, result3){
-                                        if(!err3){
-                                            socket.emit('supArticleSaved', articleId);
-                                        };
-                                    });
-                                } else {
-                                    socket.emit('supArticleSaved', articleId);
-                                };
-                            });
-                        };
-                    });
+            collectionArticles.remove({_id: new ObjectID(articleId)}, function(err, result){
+                if(!err){
+                    socket.emit('supArticleSaved', articleId);
                 };
             });
         });
         socket.on('repArticle', function(data){
-            var reponse = '';
-            reponse = {
+            var reponse = {
                 id: Date.now(),
                 auteurId: user.id,
                 auteurPseudo: user.pseudo,
@@ -241,69 +202,94 @@ ioArticlesMurs.on('connection', function(socket){
             };
             collectionArticles.updateOne({_id: new ObjectID(reponse.articleId)}, {$push: { "nouvelArticle.reponses": reponse }}, function(err, result){
                 if(!err){
-                    collectionUsers.updateOne({articlesProfil: {$elemMatch: {id: new ObjectID(reponse.articleId)}}}, {$push:{ "articlesProfil.$.reponses": reponse }}, function(err, result){
-                        if(!err){
-                            var reponseAtransmettre = '<div id="'+ reponse.id +'" class="row reponseArticle"><p class="col-xs-12 dateReponse">Message posté le : ' + moment(reponse.id).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ reponse.auteurPseudo + ' a écrit:</p><p>' + ent.decode(reponse.contenu) + '</p><p><a id="supRep-'+ reponse.id +'" class="supReponse" href="#'+ reponse.articleId +'" title="supprimer Réponse">Supprimer</a></p></div>';
-                            if(profil.id != user.id){
-                                collectionUsers.updateOne({_id: new ObjectID(reponse.auteurId)}, {$push: { "reponsesPostees": reponse }}, function(err, result){
-                                    if(!err){
-                                        socket.emit('repArticleSaved', {idReponse: reponse.id, idArticle: reponse.articleId, divReponse: reponseAtransmettre});
-                                    };
-                                });
+                    var reponseAtransmettre = '<div id="'+ reponse.id +'" class="row reponseArticle"><p class="col-xs-12 dateReponse">Message posté le : ' + moment(reponse.id).format("DD-MM-YYYY") + '</p><p class="col-xs-12">'+ reponse.auteurPseudo + ' a écrit:</p><p>' + ent.decode(reponse.contenu) + '</p><p><a id="supRep-'+ reponse.id +'" class="supReponse" href="#'+ reponse.articleId +'" title="supprimer Réponse">Supprimer</a></p></div>';
+                    
+                    socket.emit('repArticleSaved', {idReponse: reponse.id, idArticle: reponse.articleId, divReponse: reponseAtransmettre});
+                };
+            });
+        });
+        socket.on('supReponse', function(data){
+            var collectionArticles = db.get().collection('articles');
+            collectionArticles.updateOne({_id: new ObjectID(data.articleId)},{ $pull: { "nouvelArticle.reponses": {id: Number(data.reponseId)}} }, function(err, result){
+                if(!err){
+                    socket.emit('supReponseSaved', {articleId: data.articleId, reponseId: data.reponseId});
+                };
+            });
+        });
+    });
+});
+
+var ioFriends = io.of('/ioFriends');
+ioFriends.on('connection', function(socket){
+    socket.on('connectionFriends', function(data){
+        var user = data.user;
+        var collectionUsers = db.get().collection('users');
+        socket.on('searchOwnFriends', function(object){
+            var onSubmit = object.submit;
+            collectionUsers.findOne({_id: new ObjectID(user.id)}, {_id: 0, listeAmis: 1}, function(err, result){
+                if(result.listeAmis && result.listeAmis.length){
+                    var listeAmis=[];
+                    for(var i=0; result.listeAmis[i]; i++){
+                        if(result.listeAmis[i].pseudo.toLowerCase() == object.value.toLowerCase()){
+                            listeAmis.push({_id: new ObjectID(result.listeAmis[i]._id)})
+                        };
+                    };
+                    collectionUsers.find({$or: listeAmis}, {mdp:0}).toArray(function(err, liste){
+                        if(liste && liste.length){
+                            if(onSubmit){
+                                socket.emit('searchFriendsSubmitResult', liste);
                             } else {
-                                socket.emit('repArticleSaved', {idReponse: reponse.id, idArticle: reponse.articleId, divReponse: reponseAtransmettre});
+                                socket.emit('searchFriendsResult', liste);
                             };
                         };
                     });
                 };
             });
         });
-        socket.on('supReponse', function(data){
-            var collectionUsers = db.get().collection('users');
-            var collectionArticles = db.get().collection('articles');
-            collectionArticles.updateOne({_id: new ObjectID(data.articleId)},{ $pull: { "nouvelArticle.reponses": {id: Number(data.reponseId)}} }, function(err, result){
-                if(!err){
-                    collectionUsers.updateOne({articlesProfil: {$elemMatch: {id: new ObjectID(data.articleId)}}}, { $pull: { "articlesProfil.$.reponses": { id: Number(data.reponseId)} }}, function(err, result){
-                        if(!err){
-                            collectionUsers.findOne({reponsesPostes: {$elemMatch: {id: new ObjectID(data.articleId)}}}, function(err, result){
-                                
-                                if(!err){
-                                    collectionUsers.updateOne({reponsesPostes: {$elemMatch: {id: Number(data.reponseId)}}}, { $pull: { "reponsesPostes": { id: Number(data.reponseId)} }}, function(err, result){
-                                        console.log(err)
-                                        console.log(result)
-                                        if(!err){
-                                            socket.emit('supReponseSaved', {articleId: data.articleId, reponseId: data.reponseId});
-                                        };
-                                    });
-                                };
-                            });
-                        };
-                    });
-                };
-            });
-        });
-    });
-});
-var ioFriends = io.of('/ioFriends');
-ioFriends.on('connection', function(socket){
-    socket.on('connectionFriends', function(data){
-        var user = data.user;
-        console.log(user)
-        var collectionUsers = db.get().collection('users');
+        
+        
         socket.on('searchFriends', function(object){
             var data = object.value;
             var onSubmit = object.submit;
+        // recherche textuelle, on crée un index
             collectionUsers.createIndex({"pseudo": "text", "description.nom": "text", "description.prenom": "text"});
             collectionUsers.find( {$or: [{$text: { $search: data, $caseSensitive: false }}]}, { score: { $meta: "textScore" }}).sort( { score: { $meta: "textScore" } } ).toArray(function(err, data){
                 if(!err){
-                    console.log(data)
-                    if(onSubmit){
-                        socket.emit('searchFriendsSubmitResult', data);
-                    } else {
-                        socket.emit('searchFriendsResult', data);
+                    if(data.length){
+                        collectionUsers.findOne({_id: new ObjectID(user.id)}, {listeAmis: 1, demandesAmis: 1}, function(err, result){
+                    // pour chaque autre user trouvé, on vérifie
+                            for(var i=0; data[i]; i++){
+                                var aRemove = false;
+                            // si il a des amis
+                                if(result.listeAmis.length){
+                                    for(var j=0; result.listeAmis[j]; j++){
+                                // sils sont amis, on le splice
+                                        if(data[i]._id.toString() == result.listeAmis[j]._id.toString()){
+                                            aRemove = true;
+                                        };
+                                    };
+                                };
+                    // pareil pour les demandes d'amis (ils sont visibles dans la messagerie)
+                                if(result.demandesAmis.length){
+                                    for(var j=0; result.demandesAmis[j]; j++){
+                                        if(data[i]._id.toString() == result.demandesAmis[j].demandeur.id.toString() || data[i]._id.toString() == result.demandesAmis[j].userCible._id.toString()){
+                                            aRemove = true;
+                                        };
+                                    };
+                                };
+                                if(aRemove){
+                                    data.splice(i, 1);
+                                };
+                            };
+                            if(onSubmit){
+                                socket.emit('searchFriendsSubmitResult', data);
+                            } else {
+                                socket.emit('searchFriendsResult', data);
+                            };
+                        });
                     };
                 };
-            });
+            })
         });
         socket.on('addFriend', function(data){
             var demandeAmi = {
@@ -315,7 +301,6 @@ ioFriends.on('connection', function(socket){
             collectionUsers.findOne({_id: new ObjectID(data)}, {_id: 1, pseudo: 1, photoProfil: 1}, function(err, cible){
                 if(cible){
                     demandeAmi.userCible = cible;
-                    console.log(demandeAmi)
                     collectionUsers.updateOne({_id: new ObjectID(user.id)}, {$push: {"demandesAmis": demandeAmi}}, function(err, result){
                         if(!err){
                             collectionUsers.updateOne({_id: new ObjectID(demandeAmi.userCible._id)}, {$push: {"demandesAmis": demandeAmi}}, function(err, result){
@@ -330,9 +315,9 @@ ioFriends.on('connection', function(socket){
         });
         socket.on('removeFriend', function(data){
             // on récupère l'id du friend à remove et celui du user qui supprime
-            collectionUsers.updateOne({_id: new ObjectID(user._id)}, {$pull: {listeAmis: {_id: new ObjectID(data)}}}, function(err, result){
+            collectionUsers.updateOne({_id: new ObjectID(user.id)}, {$pull: {listeAmis: {_id: new ObjectID(data)}}}, function(err, result){
                 if(!err){
-                    collectionUsers.updateOne({_id: new ObjectID(data)}, {$pull: {listeAmis: {_id: new ObjectID(user._id)}}}, function(err, result){
+                    collectionUsers.updateOne({_id: new ObjectID(data)}, {$pull: {listeAmis: {_id: new ObjectID(user.id)}}}, function(err, result){
                         if(!err){
                             socket.emit('removeFriendSaved', data);
                         };
@@ -426,7 +411,6 @@ ioMessagerie.on('connection', function(socket){
         socket.on('supMessage', function(messageId){
             collectionUsers.updateOne({_id: new ObjectID(user.id)}, { $pull: { listeMessages: {id: Number(messageId)}}}, function(err, result){
                 if(!err){
-                    console.log(result)
                     var destination = '/network/messagerie/own';
                     socket.emit('supMessageSaved', destination)
                 };
@@ -464,7 +448,7 @@ ioTchat.on('connection', function(socket){
         socket.on('rejoindreSalon', function(roomsName){
         // on supprime le user de la liste de la room quittée
             for(var i=0; listeUsers[roomsName.salonAquitter][i]; i++){
-                if(listeUsers[roomsName.salonAquitter][i].id == user._id){
+                if(listeUsers[roomsName.salonAquitter][i].id == user.id){
                     listeUsers[roomsName.salonAquitter].splice(i, 1);
                 };
             };
@@ -492,8 +476,8 @@ ioTchat.on('connection', function(socket){
         });
     // on cas de déconnection on le supprime de la liste des connectés de la room, on informe le user et les autres
         socket.on('creationRoomPrivee', function(userCible){
-            var nomRoomPrivee = userCible.id + '-' + user._id;
-            var inversedNomRoomPrivee = user._id + '-' + userCible.id;
+            var nomRoomPrivee = userCible.id + '-' + user.id;
+            var inversedNomRoomPrivee = user.id + '-' + userCible.id;
             var salonExiste = false;
             if(listeUsers.hasOwnProperty(nomRoomPrivee)){
                 salonExiste = true;
@@ -537,7 +521,6 @@ ioTchat.on('connection', function(socket){
             socket.to(data.room).emit('invationRoomPriveeSaved', {userCible: userToJoin, nomRoomPrivee: data.room});
         // informe l'émetteur
             socket.emit('invationRoomPriveeSaved', {userCible: userToJoin, nomRoomPrivee: data.room});
-            console.log(data)
         // lance la création du salonPrivé
             ioTchat.sockets[userToJoin.socketId].emit('creationRoomPriveeSaved', {userCible: userToJoin, nomRoomPrivee: data.room, listeUsers: listeUsers[data.room]});
         });
@@ -580,7 +563,7 @@ ioTchat.on('connection', function(socket){
             for(var uneListe in listeUsers){
                 if(listeUsers.hasOwnProperty(uneListe)){
                     for(var i=0; listeUsers[uneListe][i]; i++){
-                        if(listeUsers[uneListe][i].id == user._id){
+                        if(listeUsers[uneListe][i].id == user.id){
                             listeUsers[uneListe].splice(i,1);
                             socket.leave(uneListe);
                             socket.to(uneListe).emit('decoUser', user);
@@ -591,6 +574,91 @@ ioTchat.on('connection', function(socket){
         });
     });
 });
+
+// LADMIN
+var ioAdmin = io.of('/ioAdmin');
+
+ioAdmin.on('connection', function(socket){
+    socket.on('connectionAdmin', function(data){
+        var admin = data.user;
+        var profilGere = data.profil;
+        var collectionUsers = db.get().collection('users');
+        var collectionArticles = db.get().collection('articles');
+// modération des articles du mur
+        socket.on('modeArticle', function(articleId){
+            collectionArticles.remove({_id: new ObjectID(articleId)}, function(err, result){
+                if(!err){
+                    var message = "L'article " + articleId + ' a bien été supprimé.';
+                    socket.emit('modeSaved', {objectId: articleId, type: 'art-', message: message});
+                };
+            });
+        });
+// modération des réponses
+        socket.on('modeReponse', function(reponseId){
+            collectionArticles.update({"nouvelArticle.reponses": {$elemMatch: {id: Number(reponseId)}}}, { $pull: { "nouvelArticle.reponses": {id: Number(reponseId)}} }, function(err, result){
+                if(result){
+                    var message = "La réponse " + reponseId + ' a bien été supprimée.';
+                    socket.emit('modeSaved', {objectId: reponseId, type: 'rep-', message: message});
+                };
+            });
+        });
+// modération des messages privés
+        socket.on('modeMessage', function(messageId){
+            collectionUsers.update({listeMessages: {$elemMatch: {id: Number(messageId)}}}, { $pull: { "listeMessages": {id: Number(messageId)}} }, {multi: true}, function(err, result){
+                if(!err){
+                    var message = "Le message " + messageId + ' a bien été supprimé.';
+                    socket.emit('modeSaved', {objectId: messageId, type: 'mess-', message: message});
+                };
+            });
+        });
+// changement des droits
+        socket.on('modeDroits', function(droits){
+            droits = ent.encode(droits);
+            collectionUsers.updateOne({_id: new ObjectID(profilGere.id)}, {$set: {droits: droits}}, function(err, result){
+                if(!err){
+                    socket.emit('modeDroitsSaved', droits)
+                };
+            });
+        });
+// gère avertissements
+        socket.on('modeAvertissement', function(object){
+            var choix = object.split('-')[0];
+            var user = object.split('-')[1];
+            profilGere.avertissements = Number(profilGere.avertissements);
+            if(choix == 'addA'){
+                profilGere.avertissements+=1;
+                var query = { $inc: {"avertissements": +1}, $set: {"dernierAvertissement": new Date()} };
+            };
+            if(choix == 'supA' && profilGere.avertissements>0){
+                profilGere.avertissements-=1;
+                var query = { $inc: {"avertissements": -1} };
+            };
+            if(query){
+                collectionUsers.updateOne({_id: new ObjectID(profilGere.id)}, query, function(err, result){
+                    if(!err){
+                        collectionUsers.findOne({_id: new ObjectID(profilGere.id)}, {_id: 0, avertissements: 1, dernierAvertissement: 1}, function(err, data){
+                            if(!err){
+                                data.dernierAvertissement = moment(data.dernierAvertissement).format("DD-MM-YYYY");
+                                socket.emit('modeAvertissementSaved', data);
+                            };
+                        });
+                    };
+                });
+            };
+        });
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
 
 // LE FORUM
 

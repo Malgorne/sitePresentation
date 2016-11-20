@@ -108,7 +108,6 @@ router.post('/traitementInscription', function(req, res, next){
                     droits: droits,
                     dateCreation: new Date(),
                     derniereConnection: new Date(),
-                    articlesProfil: [],
                     demandesAmis: [],
                     listeAmis: [],
                     listePosts: [],
@@ -121,7 +120,7 @@ router.post('/traitementInscription', function(req, res, next){
                             function(err, data){
                                 var i = data.length-1;
                                 req.session.user ={
-                                    id: data[i]._id,
+                                    _id: data[i]._id,
                                     pseudo: ent.decode(data[i].pseudo),
                                     mail: ent.decode(data[i].mail),
                                     droits: data[i].droits,

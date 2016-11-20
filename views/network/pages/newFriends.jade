@@ -71,12 +71,14 @@ block contentNetwork
                 pseudo: '!{user.pseudo}',
                 photoProfil: '!{user.photoProfil}'
             };
+            var profil = false;
     else
         script.
             var user = {
                 id: '!{user._id}',
                 pseudo: '!{user.pseudo}'
             };
+            var profil = false;
     script(type='text/javascript', src="/socket.io/socket.io.js")
     script(type='text/javascript') var socket = io('http://localhost:3001')
     script(type='text/javascript', src='../../javascripts/newFriends.js')

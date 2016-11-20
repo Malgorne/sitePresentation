@@ -4,41 +4,54 @@ $(document).ready(function(){
 // INPUT RECHERCHE AMIS
     $('#formSearchFriends').submit(function (ev) {
         if($('#inputSearchFriends').val().length){
-            socket.emit('searchFriends', {value: $('#inputSearchFriends').val(), submit: true});
+            if(profil){
+                socket.emit('searchOwnFriends', {value: $('#inputSearchFriends').val(), submit: true});
+            } else {
+                socket.emit('searchFriends', {value: $('#inputSearchFriends').val(), submit: true});
+            };
         };
         socket.on('searchFriendsSubmitResult', function(data){
-            if(data.length){
-                if($('#ulChoixProfil').length){
-                    $('#ulChoixProfil').remove();
-                };
-                var ulProfils = document.createElement('ul');
-                $(ulProfils).attr({id: 'ulChoixProfil'}).addClass('col-xs-12 col-md-offset-2 col-md-8 text-left');
-                for(var i=0; data[i]; i++){
-                    if(data[i]._id != user.id){
-                        var liProfils = document.createElement('li');
-                        $(liProfils).addClass('liNewFriends col-xs-12 col-md-4');
-                        var aProfils = document.createElement('a');
-                        $(aProfils).attr({id: 'profil-' + data[i]._id, href: '/network/mur/'+data[i]._id, title: data[i].pseudo});
-                        $(liProfils).append(aProfils);
-                        var imgProfil = document.createElement('img');
-                        $(imgProfil).attr({title: data[i].pseudo, alt: data[i].pseudo}).addClass('imgNewFriends');
-                        if(data[i].photoProfil){
-                            $(imgProfil).attr({src:"../../"+data[i].photoProfil});
-                        } else {
-                            $(imgProfil).attr({src:"../../images/uploads/photoProfil/photoProfilDefault.jpg"});
-                        };
-                        $(aProfils).append(imgProfil);
-                        var pProfils = document.createElement('p');
-                        var aPseudo = document.createElement('a');
-                        $(aPseudo).attr({id: 'profil-'+data[i]._id, href: '/network/mur/'+data[i]._id, title: data[i].pseudo}).html(data[i].pseudo);
-                        $(pProfils).append(aPseudo);
-                        var aAjouter = document.createElement('a');
-                        $(aAjouter).attr({id: data[i]._id, herf:'#', title: 'Ajouter'}).addClass('addFriend').html('Ajouter');
-                        $(pProfils).append(aAjouter);
-                        $(liProfils).append(pProfils);
-                        $(ulProfils).append(liProfils);
+            if(profil){
+                $('.liNewFriends').each(function(i,o){
+                    $(this).addClass('hidden');
+                })
+                if(data && data.length){
+                    for(var i=0; data[i]; i++){
+                        $('#profil-'+ data[i]._id).parent().removeClass('hidden');
                     };
-                    $('#ulChoixProfil').replaceWith(ulProfils)
+                };
+            } else {
+                if(data.length){
+                    $('#ulChoixProfil').remove();
+                    var ulProfils = document.createElement('ul');
+                    $(ulProfils).attr({id: 'ulProfils'}).addClass('col-xs-12 col-md-offset-2 col-md-8 text-left');
+                    for(var i=0; data[i]; i++){
+                        if(data[i]._id != user.id){
+                            var liProfils = document.createElement('li');
+                            $(liProfils).addClass('liNewFriends col-xs-12 col-md-4');
+                            var aProfils = document.createElement('a');
+                            $(aProfils).attr({id: 'profil-' + data[i]._id, href: '/network/mur/'+data[i]._id, title: data[i].pseudo});
+                            $(liProfils).append(aProfils);
+                            var imgProfil = document.createElement('img');
+                            $(imgProfil).attr({title: data[i].pseudo, alt: data[i].pseudo}).addClass('imgNewFriends');
+                            if(data[i].photoProfil){
+                                $(imgProfil).attr({src:"../../"+data[i].photoProfil});
+                            } else {
+                                $(imgProfil).attr({src:"../../images/uploads/photoProfil/photoProfilDefault.jpg"});
+                            };
+                            $(aProfils).append(imgProfil);
+                            var pProfils = document.createElement('p');
+                            var aPseudo = document.createElement('a');
+                            $(aPseudo).attr({id: 'profil-'+data[i]._id, href: '/network/mur/'+data[i]._id, title: data[i].pseudo}).html(data[i].pseudo);
+                            $(pProfils).append(aPseudo);
+                            var aAjouter = document.createElement('a');
+                            $(aAjouter).attr({id: data[i]._id, herf:'#', title: 'Ajouter'}).addClass('addFriend').html('Ajouter');
+                            $(pProfils).append(aAjouter);
+                            $(liProfils).append(pProfils);
+                            $(ulProfils).append(liProfils);
+                        };
+                        $('#ulProfils').replaceWith(ulProfils)
+                    };
                 };
             };
         });
@@ -47,7 +60,11 @@ $(document).ready(function(){
 // gère la recherche d'amis par nom/ pseudo/ prenom
     $('#inputSearchFriends').keyup(function(ev, truc){
         if($('#inputSearchFriends').val().length){
-            socket.emit('searchFriends', {value: $('#inputSearchFriends').val(), submit: false});
+            if(profil){
+                socket.emit('searchOwnFriends', {value: $('#inputSearchFriends').val(), submit: false});
+            } else {
+                socket.emit('searchFriends', {value: $('#inputSearchFriends').val(), submit: false});
+            };
         };
     });
     socket.on('searchFriendsResult', function(data){
@@ -80,9 +97,9 @@ $(document).ready(function(){
                     $(ulListeChoix).append(liChoix);
                 };
             };
+        // on l'insert
+            $(ulListeChoix).insertAfter( $("#formSearchFriends") );
         };
-    // on l'insert
-        $(ulListeChoix).insertAfter( $("#formSearchFriends") );
     });
     $('#inputSearchFriends').focusout(function(ev){
     // permet de cliquer avant le remove
@@ -93,12 +110,11 @@ $(document).ready(function(){
 // BOUTON AJOUTER AMI
     var clickAddFriend = function(object){
         $(object).click(function(ev){
-            console.log(friendId)
             var friendId = $(object).attr('id');
             friendId = friendId.split('-')[1];
             socket.emit('addFriend', friendId);
             socket.on('addFriendSaved', function(data){
-                $(object).html('En attente').removeClass('addFriend').addClass('waitingFriend').attr({title: 'en attente Benji', href:'/network/messagerie/own'});
+                $(object).html('En attente').removeClass('addFriend').addClass('waitingFriend').attr({title: 'en attente Benji', href:'/network/messagerie/own'}).off('click');
             });
         });
     };

@@ -27,7 +27,7 @@ block contentNetwork
                         p Création du compte: #{moment(profil.dateCreation).format("DD-MM-YYYY")}
                         p Dernière connection: #{moment(profil.derniereConnection).format("DD-MM-YYYY")}
                         p Nombre d'amis: 
-                              a(href='/network/friends/#{profil.id}', title="Voir les amis de #{profil.pseudo}") #{profil.listeAmis.length}
+                              a(href='/network/friends/#{profil._id}', title="Voir les amis de #{profil.pseudo}") #{profil.listeAmis.length}
                         p Nombre de posts: #{profil.listePosts.length}
                         if(profil.description && profil.description.presentation)
                             p Présentation:
@@ -43,7 +43,7 @@ block contentNetwork
                                             img.miniaturesPhotoprofils(src="../../#{ami.photoProfil}", title="#{ami.pseudo}")
                                         else
                                             img.miniaturesPhotoprofils(src='../../images/uploads/photoProfil/photoProfilDefault.jpg', title="Votre photo")
-                                        span #{ami.pseudo}
+                                        span.spanNomFriend #{ami.pseudo}
                         else
                             li.bleu Tu n'as pas encore d'amis!?!
         .row
@@ -62,7 +62,7 @@ block contentNetwork
                             else
                                 img.imgNewFriends(src='../../images/uploads/photoProfil/photoProfilDefault.jpg', title='#{ami.pseudo}', alt='#{ami.pseudo}')
                             p !{ami.pseudo}
-                                if(profil._id == user.id || user.id == ami._id)
+                                if(profil._id == user._id || user._id == ami._id)
                                     a.supFriend(id="linkProfil-#{ami._id}", href="#linkProfil-#{ami._id}", title="ajouter #{ami.pseudo}") Supprimer
     if(user.photoProfil)
         script.
@@ -71,11 +71,17 @@ block contentNetwork
                 pseudo: '!{user.pseudo}',
                 photoProfil: '!{user.photoProfil}'
             };
+            var profil = {
+                id: '!{profil._id}'
+            };
     else
         script.
             var user = {
                 id: '!{user._id}',
                 pseudo: '!{user.pseudo}'
+            };
+            var profil = {
+                id: '!{profil._id}'
             };
     script(type='text/javascript', src="/socket.io/socket.io.js")
     script(type='text/javascript') var socket = io('http://localhost:3001')

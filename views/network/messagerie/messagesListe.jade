@@ -44,9 +44,6 @@ block contentNetwork
                             td
                                 if(message.dataType != 'demandeAmis')
                                     input.selectedInputs.col-xs-9(type="checkbox" name="message-#{message.id}")
-                                else
-                                    if(user._id != message.envoyeParId)
-                                        input.selectedInputs.col-xs-9(type="checkbox" name="message-#{message.id}")
                             td.tdMessages.text-left #{message.envoyeParPseudo}
                             td.tdMessages.text-left #{message.recuParPseudo}
                             td.tdMessages.text-left #{message.titre}

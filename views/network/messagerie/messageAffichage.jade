@@ -38,8 +38,7 @@ block contentNetwork
                         else
                             img(src='../../images/uploads/photoProfil/photoProfilDefault.jpg', title="Votre photo")
                         p
-                            a.col-xs-6.btn.btn-danger.btn-lg(href="/network/newFriends/annule-#{messageLu.recuParId}-#{messageLu.id}", title="annuler la demande") Annuler la demande
-                            a#supMessage.col-xs-6.btn.btn-danger.btn-lg(href="sup-#{user._id}-#{messageLu.id}-#{messageLu.envoyeParId}", title="supprimer le message") Supprimer le message
+                            a.col-xs-12.btn.btn-danger.btn-lg(href="/network/newFriends/annule-#{messageLu.recuParId}-#{messageLu.id}", title="annuler la demande") Annuler la demande
                     else
                         if(messageLu.contenu.photoProfil)
                             img(src="../../#{messageLu.contenu.photoProfil}", title="#{user.pseudo}")

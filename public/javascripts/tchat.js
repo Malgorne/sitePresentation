@@ -56,6 +56,8 @@ $(document).ready(function(){
     });
 // on remove de la liste les users qui se déco
     socket.on('decoUser', function(userDeco){
+        console.log(userDeco)
+        $('#userSalon-' + userDeco.id).remove()
         $('#' + userDeco.id).remove();
     });
 // création de rooms privées......
