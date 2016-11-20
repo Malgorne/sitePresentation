@@ -32,7 +32,6 @@ router.get('/user/:profil', function(req, res, next){
     if(req.session.user && req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
 // on va chercher le user managé
         collection.findOne({_id: new ObjectID(profilId)}, {mdp:0}, function(err, result){
-            console.log(result)
             if(result){
 // on affiche la liste des articles et réponses faites par le user
                 var listeArticles = [];
@@ -50,66 +49,60 @@ router.get('/bannir/:profil', function(req, res, next){
     var collectionUsers = db.get().collection('users');
     var collectionMessages = db.get().collection('articles');
     if(req.session.user && req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
-// on remove le profil
-// on remove le profil des listes d'amis
-// on remove le profil des listes de demande d'amis
-
-// on remove les messages émits du profil
-
-// on remove les articles du profil
-// on remove les reponses postees par le profil
-
-        var queryRemoveListes = {$pull: {$or: [{listeAmis: {_id: new ObjectID(profilId)}}, {"demandesAmis.demandeur.id": profilId}, {"demandesAmis.userCible._id": new ObjectID(profilId)}]}};
-
-        var queryRemoveArticles = {$or:[{"nouvelArticle.auteurId": profilId}, {"nouvelArticle.profilId": profilId}]};
-        {listeAmis: {_id: new ObjectID(user.id)}}
-        var queryRemoveReponses= {$pull: {reponses: {auteurId: profilId}}};
-        
+// on va chercher le profil a bannir
         collectionUsers.findOne({_id: new ObjectID(profilId)}, function(err, profil){
             if(!err && profil && profil.avertissements >3 ){
-            // on remove le user
+            // on remove le profil
                 collectionUsers.remove({_id: new ObjectID(profilId)}, function(err, result){
             // on remove les articles
                     if(!err){
-                        collectionMessages.remove({$or:[{"nouvelArticle.auteurId": profilId}, {"nouvelArticle.profilId": profilId}]}, {multi: true}, function(err, result){
-                            console.log(err)
-                            console.log('SECOND result')
-                            console.log(result)
-            // on update les reponses
+                        collectionMessages.remove({"nouvelArticle.auteurId": profilId.toString()}, {multi: true}, function(err, result){
+            // on remove les réponses aux articles
                             if(!err){
-                                collectionMessages.update({}, queryRemoveReponses, {multi: true}, function(err, result){
-                            console.log(err)
-                                    console.log('TROISIEME result')
-                                    console.log(result)
-            // on update sa presence dans toutes les listes des autres
+                                collectionMessages.update({"nouvelArticle.reponses": {$elemMatch: {auteurId: profilId.toString()}}}, { $pull: { "nouvelArticle.reponses": {auteurId: profilId.toString()}}}, {multi: true}, function(err, result){
+            // on remove des listes de demande d'amis
                                     if(!err){
-                                        collectionUsers.update({}, queryRemoveListes, {multi: true}, function(err, result){
-                            console.log(err)
-                                            console.log('QUATRIEME result')
-                                            console.log(result)
-                                            collectionUsers.find().toArray(function(err, data){
-                            console.log(err)
-                                                if(!err){
-                                                    var listeUsers = [];
-                                                    for(var i=0; data[i]; i++){
-                                                        if(data[i].droits != 'god'){
-                                                            listeUsers.push(data[i]);
-                                                        };
+                                        collectionUsers.update({demandesAmis: { $elemMatch: {"demandeur.id": profilId.toString()}}}, {"$pull": { "demandesAmis": {"demandeur.id": profilId.toString()} } }, {multi: true}, function(err, result){
+            // on remove des listes d'amis
+                                            if(!err){
+                                                collectionUsers.update({listeAmis: { $elemMatch: {"_id": new ObjectID(profilId)}}}, {"$pull": { "listeAmis": {"_id": new ObjectID(profilId)} } }, {multi: true}, function(err, result){
+            // on remove les messages privés envoyé par le profil
+                                                    if(!err){
+                                                        collectionUsers.update({listeMessages: { $elemMatch: {"envoyeParId": new ObjectID(profilId)}}}, {$pull: {listeMessages: { envoyeParId: new ObjectID(profilId)}}},  {multi: true}, function(err, result){
+                                                            if(!err){
+                                                                collectionUsers.find().toArray(function(err, data){
+                                                                    if(!err){
+                                                                        var listeUsers = [];
+                                                                        for(var i=0; data[i]; i++){
+                                                                            if(data[i].droits != 'god'){
+                                                                                listeUsers.push(data[i]);
+                                                                            };
+                                                                        };
+                                                                        res.render('admin/listeUsers.jade', {title: 'Administration des utilisateurs', user: req.session.user, listeUsers: listeUsers, moment: moment, message: profil.pseudo + ' a bien été banni!'});
+                                                                    };
+                                                                });
+                                                            };
+                                                        });
                                                     };
-                                                    res.render('admin/listeUsers.jade', {title: 'Administration des utilisateurs', user: req.session.user, listeUsers: listeUsers, moment: moment});
-                                                }
-                                            })
-                                        })
-                                    }
-                                })
-                            }
-                        })
-                    }
-                })
-            }
-        })
-    }
-    
+                                                });
+                                            };
+                                        });
+                                    };
+                                });
+                            };
+                        });
+                    };
+                });
+            } else {
+        // si pas assez d'avertissement, on le signale
+                var listeArticles = [];
+                collectionMessages.find({"nouvelArticle.auteurId": profilId}).toArray(
+                    function(err, data){
+                    res.render('admin/profil.jade', {title: 'Gestion: ' + profil.pseudo, user: req.session.user, profil: profil, listeArticles: data, moment: moment, message: 'Il faut 4 avertissements minimum pour bannir un utilisateur'});
+                });
+            };
+        });
+    };
 });
 
 router.get('/listeUsers', function(req, res, next){

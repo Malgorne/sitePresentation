@@ -131,6 +131,8 @@ router.get('/messagerie/own', function(req, res, next){
     var collection = db.get().collection('users');
     collection.findOne({_id: new ObjectID(req.session.user._id)}, {mdp: 0}, function(err, profil){
         var listeMessages = [];
+        console.log(profil);
+        console.log(profil.demandesAmis)
         if(profil.demandesAmis.length){
             for(var i = 0; profil.demandesAmis[i]; i++){
                 var demande = profil.demandesAmis[i];

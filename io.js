@@ -159,10 +159,7 @@ ioArticlesMurs.on('connection', function(socket){
                 id: article.id
             };
             collectionArticles.updateOne({_id: new ObjectID(articleEdite.id)}, {$set:{ "nouvelArticle.contenu": articleEdite.contenu}}, function(err, result){
-                if(err){
-                    console.log('dans lerreur');
-                    console.log(err);
-                } else {
+                if(!err) {
                     collectionArticles.findOne({_id: new ObjectID(articleEdite.id)}, function(err, article){
                         if(!err && article){
                             if(article.nouvelArticle.reponses && article.nouvelArticle.reponses.length){
