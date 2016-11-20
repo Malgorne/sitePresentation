@@ -61,27 +61,4 @@ app.controller('editionProfil', [function() {
             $('input[type=submit]').prop({disabled: false});
         };
     };
-    
-    this.i=0;
-    this.arrayNumber = [];
-    this.numberComplet;
-    
-    this.verifTelephone = function(telNumber){
-        console.log(typeof(telNumber))
-        var regexGlobale =/[0-9]/;
-        
-        if(regexGlobale.test(telNumber[telNumber.length-1])){
-            this.arrayNumber.push(telNumber[telNumber.length-1]);
-        };
-        
-        for(;this.arrayNumber[this.i]; this.i++){
-            if(this.i==0){
-                this.numberComplet = this.arrayNumber[this.i];
-            } else {
-                this.numberComplet += this.arrayNumber[this.i];
-            };
-        };
-        
-        this.telUser = this.numberComplet;
-    };
 }]);

@@ -33,8 +33,7 @@ router.get('/mur/:profilDemande', function(req, res, next){
                 derniereConnection: result.derniereConnection,
                 description: {},
                 coordonnees: {
-                    adresse: {},
-                    telephone: result.telephone
+                    adresse: {}
                 }
             };
             if(result.description){
@@ -58,9 +57,6 @@ router.get('/mur/:profilDemande', function(req, res, next){
                     adresseCP: result.coordonnees.adresse.adresseCP,
                     adresseVille: ent.decode(result.coordonnees.adresse.adresseVille)
                 };
-            };
-            if(result.coordonnees && result.coordonnees.telephone){
-                profil.coordonnees.telephone = result.coordonnees.telephone;
             };
             if(result.photoProfil){
                 profil.photoProfil = result.photoProfil;

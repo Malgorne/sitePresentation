@@ -100,10 +100,6 @@ block contentNetwork
                 .row
                     h3 Comment le joindre?
                     if userManaged.coordonnees
-                        if userManaged.coordonnees.telephone
-                            p Téléphone: #{userManaged.coordonnees.telephone}
-                        else
-                            p Téléphone: pas encore rempli.
                         if userManaged.coordonnees.adresse
                             p N° #{userManaged.coordonnees.adresseNumber} #{userManaged.coordonnees.adresseRue} #{userManaged.coordonnees.adresseCP}
                         else

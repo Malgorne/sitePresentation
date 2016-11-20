@@ -22,8 +22,6 @@ block contentNetwork
                             p Adresse:
                             p #{user.coordonnees.adresse.adresseNumber} #{user.coordonnees.adresse.adresseRue}
                             p #{user.coordonnees.adresse.adresseCP} #{user.coordonnees.adresse.adresseVille}
-                        if(user.coordonnees && user.coordonnees.telephone)
-                            p Téléphone: #{user.coordonnees.telephone}
                         p Création du compte: #{moment(user.dateCreation).format("DD-MM-YYYY")}
                         p Dernière connection: #{moment(user.derniereConnection).format("DD-MM-YYYY")}
                         p Nombre d'amis: 

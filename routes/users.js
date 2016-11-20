@@ -185,9 +185,6 @@ router.post('/traitementConnection', function(req, res, next){
                 };
                 if(result.coordonnees){
                     req.session.user.coordonnees = {};
-                    if(result.coordonnees.telephone){
-                        req.session.user.coordonnees.telephone = ent.decode(result.coordonnees.telephone);
-                    };
     // retirer le ! du if (mode débug)
                     if(result.coordonnees.adresse && result.coordonnees.adresse.adresseNumber ){
                         var adresse = {
@@ -266,9 +263,6 @@ router.get('/edition', function(req, res, next){
                     };
                     if(result.coordonnees){
                         decodedUser.coordonnees = {};
-                        if(result.coordonnees.telephone){
-                            decodedUser.coordonnees.telephone = ent.decode(result.coordonnees.telephone);
-                        };
                         if(result.coordonnees.adresse && result.coordonnees.adresse.adresseNumber ){
                             var adresse = {
                                 adresseNumber: ent.decode(result.coordonnees.adresse.adresseNumber),
@@ -309,9 +303,7 @@ router.post('/traitementEdition', function(req, res, next){
 // gere caractères spéciaux
                             var value = ent.encode(req.body[property]);
     // partie coordonnées
-                            if(property == 'telephone'){
-                                objetAediter['coordonnees.'+property] = value;
-                            } else if(property == 'adresseNumber' || property == 'adresseRue' || property == 'adresseCP' || property == 'adresseVille'){
+                            if(property == 'adresseNumber' || property == 'adresseRue' || property == 'adresseCP' || property == 'adresseVille'){
                                 objetAediter['coordonnees.adresse.'+property]= value;
     // gère le mdp
                             } else if(property == 'oldPassW' || property == 'passW' || property == 'confirmPassW'){
@@ -355,9 +347,7 @@ router.post('/traitementEdition', function(req, res, next){
     // gere caractères spéciaux
                                 var value = ent.encode(req.body[property]);
         // partie coordonnées
-                                if(property == 'telephone'){
-                                    objetAediter['coordonnees.'+property] = value;
-                                } else if(property == 'adresseNumber' || property == 'adresseRue' || property == 'adresseCP' || property == 'adresseVille'){
+                                if(property == 'adresseNumber' || property == 'adresseRue' || property == 'adresseCP' || property == 'adresseVille'){
                                     objetAediter['coordonnees.adresse.'+property]= value;
         // gère le mdp
                                 } else if(property == 'oldPassW' || property == 'passW' || property == 'confirmPassW'){
