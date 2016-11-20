@@ -395,20 +395,53 @@ router.get('/deconnection', function(req, res, next){
 });
 
 router.post('/traitementSuppression', function(req, res, next){
-    var collection = db.get().collection('users');
+    var collectionUsers = db.get().collection('users');
+    var collectionMessages = db.get().collection('articles');
     var title = 'Suppression du profil';
     var user = req.session.user;
-    collection.findOne({$and: [{pseudo: ent.encode(user.pseudo)}, {mail: ent.encode(user.mail)}]}, function(err, result){
+    var profilId = req.session.user._id;
+    collectionUsers.findOne({_id: new ObjectID(user._id)}, function(err, result){
         if(err){
             res.render('users/suppression.jade', {title: title, message: 'Oops, quelque chose s\'est mal passé! merci de réessayer!', user: user});
         } else {
             if(result.mdp == ent.encode(req.body.passW)){
-                collection.deleteOne({_id: result._id}, function(err, result){
-                    if (err) {
-                        res.render('users/suppression.jade', {title: title, message: 'Oops, quelque chose s\'est mal passé! merci de réessayer!', user: user});
-                    } else {
-                        req.session.destroy(function(err){
-                            res.render('', {title: 'Accueil', message: 'Profil supprimé avec succés! J\'espère te revoir très vite!', user: user})
+                collectionUsers.remove({_id: new ObjectID(profilId)}, function(err, result){
+                // on remove les articles
+                    if(!err){
+                        collectionMessages.remove({"nouvelArticle.auteurId": profilId.toString()}, {multi: true}, function(err, result){
+            // on remove les réponses aux articles
+                            if(!err){
+                                collectionMessages.update({"nouvelArticle.reponses": {$elemMatch: {auteurId: profilId.toString()}}}, { $pull: { "nouvelArticle.reponses": {auteurId: profilId.toString()}}}, {multi: true}, function(err, result){
+            // on remove des listes de demande d'amis
+                                    if(!err){
+                                        collectionUsers.update({demandesAmis: { $elemMatch: {"demandeur.id": profilId.toString()}}}, {"$pull": { "demandesAmis": {"demandeur.id": profilId.toString()} } }, {multi: true}, function(err, result){
+            // on remove des listes d'amis
+                                            if(!err){
+                                                collectionUsers.update({listeAmis: { $elemMatch: {"_id": new ObjectID(profilId)}}}, {"$pull": { "listeAmis": {"_id": new ObjectID(profilId)} } }, {multi: true}, function(err, result){
+            // on remove les messages privés envoyé par le profil
+                                                    if(!err){
+                                                        collectionUsers.update({listeMessages: { $elemMatch: {"envoyeParId": new ObjectID(profilId)}}}, {$pull: {listeMessages: { envoyeParId: new ObjectID(profilId)}}},  {multi: true}, function(err, result){
+                                                            if(!err){
+                                                                collectionUsers.find().toArray(function(err, data){
+                                                                    if(!err){
+                                                                        var listeUsers = [];
+                                                                        for(var i=0; data[i]; i++){
+                                                                            if(data[i].droits != 'god'){
+                                                                                listeUsers.push(data[i]);
+                                                                            };
+                                                                        };
+                                                                        res.render('index.jade', {message: 'Ton compte a bien été supprimé! Nous espérons bientot te revoir'});
+                                                                    };
+                                                                });
+                                                            };
+                                                        });
+                                                    };
+                                                });
+                                            };
+                                        });
+                                    };
+                                });
+                            };
                         });
                     };
                 });
