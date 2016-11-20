@@ -8,8 +8,22 @@ var queryRemoveListes = {$pull: {$or: [{listeAmis: {_id: new ObjectID(profilId)}
 // EMETTEUR   5831ceaae879a2903febc446
 var i= {"nouvelArticle.reponses": {$elemMatch: {auteurId: "5831ceaae879a2903febc446"}}}, { $pull: { "nouvelArticle.reponses": {auteurId: "5831ceaae879a2903febc446"}} }
 
-
-db.users.update({listeMessages: { $elemMatch: {"envoyeParId": ObjectId("5831f5be132bbeb14893673d")}}}, {$pull: {listeMessages: { envoyeParId: ObjectId("5831f5be132bbeb14893673d")}}}, {multi: true});
+// purge première version. Ne supprime que le compte pas le reste...
+    var collection = db.get().collection('users');
+    var dateActu = new Date();
+    var datePurge = new Date(dateActu-15778800000);
+    collection.remove({derniereConnection: {$lte: datePurge}}, function(err, result){
+        var listeUsers=[];
+        collection.find().toArray( function(err, data){
+            listeUsers = data;
+        })
+        if(!err){
+            var message = "Tout s'est bien passé!";
+        } else {
+            var message = "Une erreure est survenue, merci de recommancer!";
+        };
+        res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: message, user: req.session.user, listeUsers: listeUsers, moment: moment});
+    });
 
 
 

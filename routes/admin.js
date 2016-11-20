@@ -94,7 +94,7 @@ router.get('/bannir/:profil', function(req, res, next){
                     };
                 });
             } else {
-        // si pas assez d'avertissement, on le signale
+        // si pas assez d'avertissements, on le signale
                 var listeArticles = [];
                 collectionMessages.find({"nouvelArticle.auteurId": profilId}).toArray(
                     function(err, data){
@@ -135,7 +135,7 @@ router.post('/user/traitementEdition', function(req, res, next){
                     droits: result.droits,
                     dateCreation: result.dateCreation,
                     derniereConnection: result.derniereConnection
-                }
+                };
                 res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: 'Quelque chose s\'est mal passé!', user: req.session.user, userManaged: decodeUser});
             } else {
                 var decodeUser = {
@@ -172,20 +172,56 @@ router.get('/user/suppression', function(req, res, next){
 });
 
 router.get('/suppressionInactifs', function(req, res, next){
-    var collection = db.get().collection('users');
+    var collectionUsers = db.get().collection('users');
+    var collectionMessages = db.get().collection('articles');
     var dateActu = new Date();
     var datePurge = new Date(dateActu-15778800000);
-    collection.remove({derniereConnection: {$lte: datePurge}}, function(err, result){
-        var listeUsers=[];
-        collection.find().toArray( function(err, data){
-            listeUsers = data;
-        })
-        if(!err){
-            var message = "Tout s'est bien passé!";
-        } else {
-            var message = "Une erreure est survenue, merci de recommancer!";
+    collectionUser.find({derniereConnection: {$lte: datePurge}}, {_id: 1}).toArray(function(err, data){
+        if(!err && data && data.length){
+            for(var i=0; data[i]; i++){
+                var profilId = data[i]._id;
+            // on remove le profil
+                collectionUsers.remove({_id: new ObjectID(profilId)}, function(err, result){
+            // on remove les articles
+                    if(!err){
+                        collectionMessages.remove({"nouvelArticle.auteurId": profilId.toString()}, {multi: true}, function(err, result){
+            // on remove les réponses aux articles
+                            if(!err){
+                                collectionMessages.update({"nouvelArticle.reponses": {$elemMatch: {auteurId: profilId.toString()}}}, { $pull: { "nouvelArticle.reponses": {auteurId: profilId.toString()}}}, {multi: true}, function(err, result){
+            // on remove des listes de demande d'amis
+                                    if(!err){
+                                        collectionUsers.update({demandesAmis: { $elemMatch: {"demandeur.id": profilId.toString()}}}, {"$pull": { "demandesAmis": {"demandeur.id": profilId.toString()} } }, {multi: true}, function(err, result){
+            // on remove des listes d'amis
+                                            if(!err){
+                                                collectionUsers.update({listeAmis: { $elemMatch: {"_id": new ObjectID(profilId)}}}, {"$pull": { "listeAmis": {"_id": new ObjectID(profilId)} } }, {multi: true}, function(err, result){
+            // on remove les messages privés envoyé par le profil
+                                                    if(!err){
+                                                        collectionUsers.update({listeMessages: { $elemMatch: {"envoyeParId": new ObjectID(profilId)}}}, {$pull: {listeMessages: { envoyeParId: new ObjectID(profilId)}}},  {multi: true}, function(err, result){
+                                                            if(!err){
+                                                                var listeUsers=[];
+                                                                collection.find().toArray( function(err, data){
+                                                                    listeUsers = data;
+                                                                })
+                                                                if(!err){
+                                                                    var message = "Tout s'est bien passé!";
+                                                                } else {
+                                                                    var message = "Une erreure est survenue, merci de recommancer!";
+                                                                };
+                                                                res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: message, user: req.session.user, listeUsers: listeUsers, moment: moment});
+                                                            };
+                                                        });
+                                                    };
+                                                });
+                                            };
+                                        });
+                                    };
+                                });
+                            };
+                        });
+                    };
+                });
+            };
         };
-        res.render('admin/listeUsers.jade', {title: 'Gestion des utilisateurs', message: message, user: req.session.user, listeUsers: listeUsers, moment: moment});
     });
 });
 

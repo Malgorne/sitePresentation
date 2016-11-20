@@ -80,17 +80,16 @@ router.get('/mur/:profilDemande', function(req, res, next){
                         data[i].nouvelArticle.auteurPseudo = ent.decode(data[i].nouvelArticle.auteurPseudo);
                         data[i].nouvelArticle.contenu = ent.decode(data[i].nouvelArticle.contenu);
                         if(profil._id == req.session.user._id || data[i].nouvelArticle.auteurId == req.session.user._id || profil.isFriend || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
-                            var spanEditionArticle = '<div class="row text-center spanArticle"><p>';
+                            var spanEditionArticle = '<div class="row text-center spanArticle">';
                             spanEditionArticle+= '<a id="rep-'+ data[i]._id +'" class="repArticle" href="#'+ data[i]._id +'">Répondre</a>';
                             if(data[i].nouvelArticle.auteurId == req.session.user._id){
                                 
                                 spanEditionArticle+='<a id="edit-'+ data[i]._id +'" class="editArticle" href="#'+ data[i]._id +'">Edition</a>';
                             };
                             if(data[i].nouvelArticle.auteurId == req.session.user._id || profil._id == req.session.user._id || req.session.user.droits == 'god' || req.session.user.droits == 'demiGod'){
-                                
                                 spanEditionArticle+='<a id="sup-'+ data[i]._id +'" class="supArticle" href="#'+ data[i]._id +'">Suppression</a>';
                             };
-                            spanEditionArticle+='</p></div>';
+                            spanEditionArticle+='</div>';
                         };
                         var listeDivReponses='';
                         if(data[i].nouvelArticle.reponses && data[i].nouvelArticle.reponses.length){
@@ -343,7 +342,7 @@ router.get('/friends/:profilConsulte', function(req, res, next){
 });
 
 router.get('/tchat/', function(req, res, next){
-    res.render('network/pages/tchat.jade', {titre: 'network', user: req.session.user, moment: moment})
+    res.render('network/pages/tchat.jade', {titre: 'network', user: req.session.user, moment: moment});
 });
 
 db.connect('mongodb://localhost:27017/blog', function(err){

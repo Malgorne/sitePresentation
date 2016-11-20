@@ -66,7 +66,7 @@ function restriction(req, res, next){
     if(req.session.user){
         if(req.url == '/connection' || req.url == '/inscription' || req.url == '/traitementConnection' || req.url == '/traitementInscription'){
             var user = req.session.user;
-            res.render('index.jade', { title: 'Accueil', message: 'Tu es déjà connecté ' + user.pseudo + '!', user: user});
+            res.render('index.jade', { title: 'Accueil', message: 'Tu es déjà connecté ' + user.pseudo + '!', user: user, jeuSolo: true});
         };
     } else {
         if(req.url == '/deconnection'){
@@ -430,7 +430,7 @@ router.post('/traitementSuppression', function(req, res, next){
                                                                                 listeUsers.push(data[i]);
                                                                             };
                                                                         };
-                                                                        res.render('index.jade', {message: 'Ton compte a bien été supprimé! Nous espérons bientot te revoir'});
+                                                                        res.render('index.jade', {message: 'Ton compte a bien été supprimé! Nous espérons bientot te revoir', jeuSolo: true});
                                                                     };
                                                                 });
                                                             };
