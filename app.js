@@ -27,7 +27,7 @@ mailer.extend(app, {
   transportMethod: 'SMTP', // default is SMTP. Accepts anything that nodemailer accepts 
   auth: {
     user: 'admin@fritz.solutions',
-    pass: 'Passw01#H1pilote'
+    pass: ''
   }
 });
 
